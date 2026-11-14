@@ -1,0 +1,535 @@
+<title>Comunicados Camino</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Inter:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Layout: duas colunas de trabalho (montar à esquerda, prévia do e-mail à direita), empilham no celular. */
+:root {
+  --bg: #FBFAF8;
+  --panel: #FFFFFF;
+  --ink: #26202B;
+  --ink-soft: #6C6472;
+  --line: #E8E3EA;
+  --field: #F6F3F7;
+  --laranja: #F7A600;
+  --magenta: #E6007E;
+  --roxo: #8E1F8F;
+  --accent: #8E1F8F;
+  --accent-ink: #FFFFFF;
+  --ok: #1D7A4F;
+  --warn: #A55F00;
+  --warn-bg: #FFF4DF;
+  --f-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430;
+  --accent: #D35BD4; --accent-ink: #17141A; --ok: #5FD19B; --warn: #F5B94A; --warn-bg: #3A2C12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430;
+  --accent: #D35BD4; --accent-ink: #17141A; --ok: #5FD19B; --warn: #F5B94A; --warn-bg: #3A2C12; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5 }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.faixa { height: 6px; background: linear-gradient(90deg, var(--laranja), var(--magenta), var(--roxo)) }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 24px }
+h1 { font-family: var(--f-display); font-weight: 900; font-size: 30px; margin: 0; letter-spacing: -.01em; text-wrap: balance }
+.sub { color: var(--ink-soft); margin: 4px 0 0; max-width: 62ch }
+.remetente { font-size: 13px; color: var(--ink-soft) }
+.remetente b { color: var(--ink); font-weight: 600 }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 20px; align-items: start }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr) } }
+
+.passo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 14px; min-width: 0 }
+.col { display: grid; gap: 20px; min-width: 0 }
+.passo h2 { font-family: var(--f-display); font-weight: 800; font-size: 18px; margin: 0; display: flex; gap: 10px; align-items: center }
+.num { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 13px; color: #fff;
+  background: linear-gradient(135deg, var(--laranja), var(--magenta) 55%, var(--roxo)) }
+.dica { color: var(--ink-soft); font-size: 13px; margin: 0 }
+.dica code { background: var(--field); padding: 1px 5px; border-radius: 4px; font-size: 12px }
+
+.drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 18px; text-align: center; color: var(--ink-soft); cursor: pointer; transition: border-color .15s, background .15s }
+.drop:hover, .drop.on { border-color: var(--accent); background: var(--field) }
+.drop strong { color: var(--ink); display: block; font-weight: 600 }
+
+label { font-size: 12px; font-weight: 600; color: var(--ink-soft); letter-spacing: .02em; display: grid; gap: 5px }
+input[type=text], input[type=url], textarea, select {
+  font: inherit; color: var(--ink); background: var(--field); border: 1px solid transparent; border-radius: 8px; padding: 9px 11px; width: 100%; min-width: 0 }
+textarea { resize: vertical; min-height: 120px; line-height: 1.55 }
+input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px }
+.linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px }
+.chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; user-select: none; background: var(--panel) }
+.chip input { accent-color: var(--accent); margin: 0 }
+.chip .q { color: var(--ink-soft); font-variant-numeric: tabular-nums }
+.chip.off { opacity: .55 }
+
+.modelos { display: flex; flex-wrap: wrap; gap: 8px }
+.modelo { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px; cursor: pointer }
+.modelo[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--field) }
+
+.resumo { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-soft) }
+.resumo b { color: var(--ink); font-variant-numeric: tabular-nums; font-size: 22px; font-family: var(--f-display); font-weight: 800; display: block; line-height: 1.1 }
+.aviso { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 9px 12px; font-size: 13px }
+.lista-fora { font-size: 12.5px; color: var(--ink-soft); max-height: 140px; overflow: auto; background: var(--field); border-radius: 8px; padding: 8px 12px }
+.lista-fora li { margin: 2px 0 }
+details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink-soft) }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 8px }
+.btn { font: inherit; font-weight: 600; font-size: 13.5px; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink) }
+.btn.sec { background: transparent; color: var(--accent) }
+.btn:disabled { opacity: .45; cursor: not-allowed }
+.feito { color: var(--ok); font-size: 13px; font-weight: 600; align-self: center }
+
+.destaques { display: grid; gap: 8px }
+.dest { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) 32px; gap: 8px }
+.x { font: inherit; border: 0; background: var(--field); color: var(--ink-soft); border-radius: 8px; cursor: pointer }
+.mais { font: inherit; font-size: 13px; font-weight: 600; background: none; border: 0; color: var(--accent); cursor: pointer; justify-self: start; padding: 0 }
+
+.previa-box { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+.assunto { background: var(--panel); border: 1px solid var(--line); border-bottom: 0; border-radius: 12px 12px 0 0; padding: 12px 16px; font-size: 13px; color: var(--ink-soft); overflow-wrap: anywhere }
+.assunto b { color: var(--ink) }
+.previa { background: #F3F0F5; border: 1px solid var(--line); border-radius: 0 0 12px 12px; padding: 20px 12px; overflow-x: auto }
+.previa-acoes { margin-top: 12px }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="faixa"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Comunicados Camino</h1>
+      <p class="sub">Monte o comunicado, copie para o Gmail e envie com a lista em CCO. Os dados dos colaboradores ficam só no seu navegador e somem quando você fecha a página.</p>
+    </div>
+    <div class="remetente">Remetente sugerido: <b id="remetente-txt">pessoas@caminoschool.com.br</b></div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <!-- PASSO 1 -->
+      <section class="passo" aria-labelledby="t1">
+        <h2 id="t1"><span class="num">1</span>Lista de destinatários</h2>
+        <p class="dica">No CRM, abra <code>Colaboradores</code>, clique em <code>Exportar</code> e solte aqui o <code>colaboradores.csv</code>. Também funciona com .xlsx.</p>
+        <label class="drop" id="drop" for="arquivo">
+          <strong id="drop-titulo">Soltar o arquivo exportado do CRM</strong>
+          <span id="drop-sub">ou clique para escolher</span>
+          <input type="file" id="arquivo" accept=".csv,.xlsx,.xls,.txt" hidden>
+        </label>
+
+        <div id="filtros" hidden>
+          <div style="display:grid;gap:12px">
+            <div>
+              <div class="dica" style="margin-bottom:6px">Quem recebe</div>
+              <div class="chips" id="chips-regime"></div>
+            </div>
+            <div>
+              <div class="dica" style="margin-bottom:6px">Situação</div>
+              <div class="chips" id="chips-status"></div>
+            </div>
+            <label class="chip" style="justify-self:start"><input type="checkbox" id="usar-camino"> Sem e-mail pessoal? Usar o e-mail Camino</label>
+          </div>
+        </div>
+
+        <div id="resultado" hidden>
+          <div class="resumo" id="resumo"></div>
+          <div id="avisos" style="display:grid;gap:8px"></div>
+          <details id="det-sem-email" hidden>
+            <summary id="sum-sem-email"></summary>
+            <ul class="lista-fora" id="sem-email"></ul>
+          </details>
+          <div class="acoes" id="acoes-cco"></div>
+        </div>
+      </section>
+
+      <!-- PASSO 2 -->
+      <section class="passo" aria-labelledby="t2">
+        <h2 id="t2"><span class="num">2</span>Comunicado</h2>
+        <div class="modelos" id="modelos" role="group" aria-label="Modelos"></div>
+        <div class="linha">
+          <label>Assunto do e-mail<input type="text" id="f-assunto"></label>
+          <label>Etiqueta<input type="text" id="f-etiqueta"></label>
+        </div>
+        <label>Título<input type="text" id="f-titulo"></label>
+        <label>Texto <span style="font-weight:400">— linha em branco separa parágrafos; **negrito** funciona</span><textarea id="f-corpo" rows="8"></textarea></label>
+        <div>
+          <div class="dica" style="margin-bottom:6px">Destaques (aparecem num quadro no e-mail)</div>
+          <div class="destaques" id="destaques"></div>
+          <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
+        </div>
+        <div class="linha">
+          <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
+          <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
+        </div>
+        <label>Assinatura<input type="text" id="f-assinatura"></label>
+        <details>
+          <summary>Ajustes da marca</summary>
+          <div style="display:grid;gap:10px;margin-top:10px">
+            <label>E-mail remetente<input type="text" id="f-remetente"></label>
+            <label>Endereço do logo (imagem pública)<input type="url" id="f-logo"></label>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <!-- PRÉVIA -->
+    <div class="previa-box">
+      <div class="assunto">Assunto: <b id="p-assunto"></b></div>
+      <div class="previa"><div id="email"></div></div>
+      <div class="acoes previa-acoes">
+        <button class="btn" type="button" id="copiar-email">Copiar e-mail</button>
+        <button class="btn sec" type="button" id="copiar-assunto">Copiar assunto</button>
+        <span class="feito" id="feito" aria-live="polite"></span>
+      </div>
+      <p class="dica" style="margin-top:10px">No Gmail: novo e-mail → cole a lista em <b>Cco</b> → cole o assunto → clique no corpo e <b>Ctrl/⌘ + V</b>. Antes do envio, mande um teste para você.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+  const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+
+  // ───────── Modelos ─────────
+  const MODELOS = {
+    decimo: {
+      nome: '13º salário', etiqueta: 'Folha de pagamento',
+      assunto: '13º salário 2026: datas de pagamento',
+      titulo: 'Seu 13º salário está chegando',
+      corpo: 'Olá, time!\n\nQueremos deixar todo mundo por dentro das datas do **13º salário** deste ano. O pagamento é feito em duas parcelas, direto na conta em que você já recebe o salário.\n\nA **1ª parcela** corresponde a metade do salário, sem descontos. Na **2ª parcela** entram os descontos de INSS e Imposto de Renda, calculados sobre o valor total do 13º.\n\nQuem entrou na Camino ao longo do ano recebe o valor proporcional aos meses trabalhados (1/12 por mês com 15 dias ou mais).\n\nFicou com alguma dúvida? É só responder este e-mail.',
+      destaques: [['1ª parcela', 'até 30/11/2026'], ['2ª parcela', 'até 18/12/2026'], ['Onde ver', 'Holerite do 13º no portal']],
+      cta: '', link: '',
+      regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': false },
+      aviso: 'Estagiários não têm direito a 13º (Lei do Estágio), por isso ficam fora deste comunicado. Marque se quiser incluir.'
+    },
+    ferias: {
+      nome: 'Recesso / férias coletivas', etiqueta: 'Calendário',
+      assunto: 'Recesso de fim de ano: o que muda',
+      titulo: 'Nosso recesso de fim de ano',
+      corpo: 'Olá, time!\n\nO ano está chegando ao fim e queremos organizar com antecedência o nosso período de **recesso**.\n\nDurante esses dias as atividades ficam suspensas. Se a sua área tiver algum plantão, a liderança vai combinar diretamente com você.\n\nAproveitem para descansar. Voltamos com tudo!',
+      destaques: [['Início', 'dd/mm'], ['Retorno', 'dd/mm'], ['Plantões', 'Combinados com a liderança']],
+      cta: '', link: '', regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    },
+    beneficio: {
+      nome: 'Benefícios', etiqueta: 'Benefícios',
+      assunto: 'Novidade nos seus benefícios',
+      titulo: 'Uma novidade nos seus benefícios',
+      corpo: 'Olá, time!\n\nTemos uma novidade sobre os benefícios da Camino e queremos que todo mundo saiba primeiro por aqui.\n\nExplique aqui o que muda, a partir de quando e se a pessoa precisa fazer alguma coisa.',
+      destaques: [['O que muda', ''], ['A partir de', ''], ['Precisa fazer algo?', '']],
+      cta: 'Saiba mais', link: '', regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    },
+    geral: {
+      nome: 'Aviso geral', etiqueta: 'Comunicado',
+      assunto: '', titulo: '',
+      corpo: 'Olá, time!\n\n',
+      destaques: [], cta: '', link: '', regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    }
+  }
+
+  // Logo embutido só para a prévia (o artefato não carrega imagens de outros sites); o e-mail copiado usa o endereço público.
+  const LOGO_PREVIA = 'data:image/png;base64,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'
+  const REGIMES_ALVO = ['CLT', 'Jovem Aprendiz', 'Estagiário']
+  const estado = {
+    modelo: 'decimo',
+    pessoas: [],
+    regimes: { ...MODELOS.decimo.regimes },
+    status: {},
+    remetente: 'pessoas@caminoschool.com.br',
+    logo: 'https://rh.caminoschool.com.br/logo-camino-school.png',
+    assinatura: 'Time de Pessoas · Camino School'
+  }
+
+  // ───────── Leitura do arquivo ─────────
+  function parseCSV(txt) {
+    txt = txt.replace(/^﻿/, '')
+    const prim = txt.split('\n')[0] || ''
+    const sep = (prim.match(/;/g) || []).length >= (prim.match(/,/g) || []).length ? ';' : ','
+    const linhas = []; let campo = '', linha = [], aspas = false
+    for (let i = 0; i < txt.length; i++) {
+      const c = txt[i]
+      if (aspas) {
+        if (c === '"') { if (txt[i + 1] === '"') { campo += '"'; i++ } else aspas = false }
+        else campo += c
+      } else if (c === '"') aspas = true
+      else if (c === sep) { linha.push(campo); campo = '' }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && txt[i + 1] === '\n') i++
+        linha.push(campo); linhas.push(linha); linha = []; campo = ''
+      } else campo += c
+    }
+    if (campo || linha.length) { linha.push(campo); linhas.push(linha) }
+    return linhas.filter((l) => l.some((v) => v.trim()))
+  }
+
+  function achaColuna(cab, testes) {
+    const n = cab.map(norm)
+    for (const t of testes) { const i = n.findIndex(t); if (i >= 0) return i }
+    return -1
+  }
+
+  function normalizaRegime(r) {
+    const n = norm(r)
+    if (!n) return ''
+    if (n === 'pj' || n.includes('pessoa juridica')) return 'PJ'
+    if (n.includes('estag')) return 'Estagiário'
+    if (n.includes('aprendiz')) return 'Jovem Aprendiz'
+    if (n.includes('clt')) return 'CLT'
+    return r.trim()
+  }
+
+  function carregarLinhas(linhas) {
+    const cab = linhas[0] || []
+    const iNome = achaColuna(cab, [(c) => c === 'nome completo', (c) => c === 'nome', (c) => c.includes('nome')])
+    const iStatus = achaColuna(cab, [(c) => c === 'status', (c) => c.includes('status') || c.includes('situacao')])
+    const iRegime = achaColuna(cab, [(c) => c === 'regime', (c) => c.includes('regime') && !c.includes('tribut'), (c) => c.includes('vinculo')])
+    const iPessoal = achaColuna(cab, [(c) => c === 'e-mail pessoal', (c) => c.includes('mail') && c.includes('pessoal')])
+    const iCamino = achaColuna(cab, [(c) => c === 'e-mail camino', (c) => c.includes('mail') && (c.includes('camino') || c.includes('corporativo'))])
+    if (iRegime < 0 || (iPessoal < 0 && iCamino < 0)) {
+      throw new Error('Não encontrei as colunas "Regime" e "E-mail Pessoal". Use o arquivo gerado pelo botão Exportar da tela Colaboradores.')
+    }
+    estado.pessoas = linhas.slice(1).map((l) => ({
+      nome: (l[iNome] || '').trim(),
+      status: (iStatus >= 0 ? l[iStatus] : 'Ativo').trim() || 'Sem status',
+      regime: normalizaRegime(l[iRegime] || ''),
+      pessoal: (iPessoal >= 0 ? l[iPessoal] : '').trim().toLowerCase(),
+      camino: (iCamino >= 0 ? l[iCamino] : '').trim().toLowerCase()
+    })).filter((p) => p.nome || p.pessoal || p.camino)
+    const sts = [...new Set(estado.pessoas.map((p) => p.status))]
+    estado.status = Object.fromEntries(sts.map((s) => [s, !/deslig|inativ|cancel|demit/i.test(s)]))
+  }
+
+  async function lerArquivo(f) {
+    try {
+      let linhas
+      if (/\.xlsx?$/i.test(f.name)) {
+        if (!window.XLSX) throw new Error('O leitor de Excel não carregou. Exporte em CSV pelo CRM e tente de novo.')
+        const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' })
+        linhas = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' }).map((l) => l.map(String))
+      } else {
+        linhas = parseCSV(await f.text())
+      }
+      carregarLinhas(linhas)
+      $('drop-titulo').textContent = f.name
+      $('drop-sub').textContent = `${estado.pessoas.length} pessoas lidas · clique para trocar o arquivo`
+      $('filtros').hidden = false
+      $('resultado').hidden = false
+      renderLista()
+    } catch (e) {
+      $('drop-titulo').textContent = 'Não consegui ler esse arquivo'
+      $('drop-sub').textContent = e.message
+    }
+  }
+
+  const drop = $('drop')
+  $('arquivo').addEventListener('change', (e) => e.target.files[0] && lerArquivo(e.target.files[0]))
+  ;['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('on') }))
+  ;['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('on') }))
+  drop.addEventListener('drop', (e) => e.dataTransfer.files[0] && lerArquivo(e.dataTransfer.files[0]))
+
+  // ───────── Lista ─────────
+  const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+  let destinatarios = []
+
+  function chip(container, rotulo, qtd, marcado, onChange) {
+    const l = document.createElement('label')
+    l.className = 'chip' + (marcado ? '' : ' off')
+    l.innerHTML = `<input type="checkbox"${marcado ? ' checked' : ''}> ${esc(rotulo)} <span class="q">${qtd}</span>`
+    l.querySelector('input').addEventListener('change', (e) => onChange(e.target.checked))
+    container.appendChild(l)
+  }
+
+  function renderLista() {
+    if (!estado.pessoas.length) return
+    const usarCamino = $('usar-camino').checked
+    const cr = $('chips-regime'); cr.innerHTML = ''
+    for (const r of REGIMES_ALVO) {
+      const q = estado.pessoas.filter((p) => p.regime === r && estado.status[p.status]).length
+      chip(cr, r, q, !!estado.regimes[r], (v) => { estado.regimes[r] = v; renderLista() })
+    }
+    const cs = $('chips-status'); cs.innerHTML = ''
+    for (const s of Object.keys(estado.status)) {
+      const q = estado.pessoas.filter((p) => p.status === s && estado.regimes[p.regime]).length
+      chip(cs, s, q, estado.status[s], (v) => { estado.status[s] = v; renderLista() })
+    }
+
+    const alvo = estado.pessoas.filter((p) => estado.regimes[p.regime] && estado.status[p.status])
+    const vistos = new Set(); const semEmail = []; destinatarios = []
+    let viaCamino = 0
+    for (const p of alvo) {
+      let e = emailOk(p.pessoal) ? p.pessoal : ''
+      if (!e && usarCamino && emailOk(p.camino)) { e = p.camino; viaCamino++ }
+      if (!e) { semEmail.push(p); continue }
+      if (vistos.has(e)) continue
+      vistos.add(e); destinatarios.push(e)
+    }
+    const pjs = estado.pessoas.filter((p) => p.regime === 'PJ').length
+
+    $('resumo').innerHTML =
+      `<div><b>${destinatarios.length}</b>e-mails prontos</div>` +
+      `<div><b>${semEmail.length}</b>sem e-mail pessoal</div>` +
+      `<div><b>${pjs}</b>PJs fora da lista</div>`
+
+    const av = $('avisos'); av.innerHTML = ''
+    const m = MODELOS[estado.modelo]
+    if (m.aviso && !estado.regimes['Estagiário']) av.insertAdjacentHTML('beforeend', `<div class="aviso">${esc(m.aviso)}</div>`)
+    if (viaCamino) av.insertAdjacentHTML('beforeend', `<div class="dica">${viaCamino} pessoa(s) entraram pelo e-mail Camino.</div>`)
+
+    $('det-sem-email').hidden = !semEmail.length
+    $('sum-sem-email').textContent = `Ver quem ficou sem e-mail (${semEmail.length})`
+    $('sem-email').innerHTML = semEmail.map((p) => `<li>${esc(p.nome || '(sem nome)')} · ${esc(p.regime)}</li>`).join('')
+
+    // Gmail aceita até ~500 destinatários externos por mensagem; dividimos em lotes de 450 por segurança.
+    const LOTE = 450
+    const lotes = []
+    for (let i = 0; i < destinatarios.length; i += LOTE) lotes.push(destinatarios.slice(i, i + LOTE))
+    const ac = $('acoes-cco'); ac.innerHTML = ''
+    lotes.forEach((lote, i) => {
+      const b = document.createElement('button')
+      b.className = 'btn'; b.type = 'button'
+      b.textContent = lotes.length > 1 ? `Copiar CCO · lote ${i + 1} (${lote.length})` : `Copiar lista para CCO (${lote.length})`
+      b.addEventListener('click', () => copiarTexto(lote.join(', '), b))
+      ac.appendChild(b)
+    })
+    if (!lotes.length) ac.innerHTML = '<span class="dica">Nenhum e-mail com esses filtros.</span>'
+  }
+  $('usar-camino').addEventListener('change', renderLista)
+
+  // ───────── Formulário ─────────
+  const campos = ['assunto', 'etiqueta', 'titulo', 'corpo', 'cta', 'link', 'assinatura', 'remetente', 'logo']
+  let destaques = []
+
+  function renderModelos() {
+    const c = $('modelos'); c.innerHTML = ''
+    for (const [id, m] of Object.entries(MODELOS)) {
+      const b = document.createElement('button')
+      b.type = 'button'; b.className = 'modelo'; b.textContent = m.nome
+      b.setAttribute('aria-pressed', String(id === estado.modelo))
+      b.addEventListener('click', () => aplicarModelo(id))
+      c.appendChild(b)
+    }
+  }
+
+  function aplicarModelo(id) {
+    estado.modelo = id
+    const m = MODELOS[id]
+    $('f-assunto').value = m.assunto; $('f-etiqueta').value = m.etiqueta; $('f-titulo').value = m.titulo
+    $('f-corpo').value = m.corpo; $('f-cta').value = m.cta; $('f-link').value = m.link
+    destaques = m.destaques.map((d) => [...d])
+    estado.regimes = { ...m.regimes }
+    renderModelos(); renderDestaques(); renderLista(); renderEmail()
+  }
+
+  function renderDestaques() {
+    const c = $('destaques'); c.innerHTML = ''
+    destaques.forEach((d, i) => {
+      const row = document.createElement('div'); row.className = 'dest'
+      row.innerHTML = `<input type="text" id="d-r-${i}" aria-label="Rótulo" placeholder="Rótulo" value="${esc(d[0])}"><input type="text" id="d-v-${i}" aria-label="Valor" placeholder="Valor" value="${esc(d[1])}"><button class="x" type="button" aria-label="Remover">×</button>`
+      const [a, b] = row.querySelectorAll('input')
+      a.addEventListener('input', () => { destaques[i][0] = a.value; renderEmail() })
+      b.addEventListener('input', () => { destaques[i][1] = b.value; renderEmail() })
+      row.querySelector('button').addEventListener('click', () => { destaques.splice(i, 1); renderDestaques(); renderEmail() })
+      c.appendChild(row)
+    })
+  }
+  $('add-dest').addEventListener('click', () => { destaques.push(['', '']); renderDestaques() })
+
+  // ───────── E-mail (HTML com estilos inline, em tabelas, para colar no Gmail) ─────────
+  function inline(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#26202B">$1</strong>') }
+
+  function htmlEmail(previa) {
+    const v = (k) => $('f-' + k).value.trim()
+    const F = "font-family:'Segoe UI',Helvetica,Arial,sans-serif"
+    const paragrafos = v('corpo').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+      .map((p) => `<p style="margin:0 0 14px;${F};font-size:15px;line-height:1.6;color:#4A4350">${inline(p).replace(/\n/g, '<br>')}</p>`).join('')
+    const ds = destaques.filter((d) => d[0].trim() || d[1].trim())
+    const quadro = ds.length ? `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:6px 0 18px;background:#FBF6FB;border-radius:10px">
+        ${ds.map((d, i) => `<tr>
+          <td style="${F};font-size:13px;color:#8E1F8F;font-weight:700;padding:12px 16px;${i ? 'border-top:1px solid #EFE3F0;' : ''}width:40%;vertical-align:top">${esc(d[0])}</td>
+          <td style="${F};font-size:15px;color:#26202B;font-weight:600;padding:12px 16px;${i ? 'border-top:1px solid #EFE3F0;' : ''}vertical-align:top">${esc(d[1])}</td>
+        </tr>`).join('')}
+      </table>` : ''
+    const cta = v('cta') && /^https?:\/\//.test(v('link')) ? `
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 18px"><tr>
+        <td style="background:#8E1F8F;border-radius:8px"><a href="${esc(v('link'))}" style="display:inline-block;padding:12px 22px;${F};font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none">${esc(v('cta'))}</a></td>
+      </tr></table>` : ''
+    const logo = /^https?:\/\//.test(v('logo'))
+      ? `<img src="${previa ? LOGO_PREVIA : esc(v('logo'))}" alt="Camino School" width="140" style="display:block;width:140px;height:auto;border:0">`
+      : `<span style="${F};font-size:26px;font-weight:900;color:#E6007E">camino</span>`
+    const remet = v('remetente')
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#F3F0F5"><tr><td align="center" style="padding:8px 0">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden">
+    <tr><td style="height:6px;line-height:6px;font-size:0;background:#E6007E;background-image:linear-gradient(90deg,#F7A600,#E6007E,#8E1F8F)">&nbsp;</td></tr>
+    <tr><td style="padding:26px 32px 6px">${logo}</td></tr>
+    <tr><td style="padding:18px 32px 0">
+      ${v('etiqueta') ? `<div style="${F};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#E6007E;margin:0 0 8px">${esc(v('etiqueta'))}</div>` : ''}
+      ${v('titulo') ? `<h1 style="margin:0 0 18px;${F};font-size:26px;line-height:1.25;font-weight:800;color:#26202B">${esc(v('titulo'))}</h1>` : ''}
+      ${paragrafos}${quadro}${cta}
+    </td></tr>
+    <tr><td style="padding:6px 32px 28px">
+      <p style="margin:0;${F};font-size:15px;line-height:1.5;color:#26202B">Um abraço,<br><strong>${esc(v('assinatura'))}</strong></p>
+    </td></tr>
+    <tr><td style="padding:16px 32px;background:#FAF7FA;border-top:1px solid #EFE8F0">
+      <p style="margin:0;${F};font-size:12px;line-height:1.5;color:#8A8190">Comunicado interno para colaboradores da Camino School.${remet ? ` Dúvidas? Responda este e-mail ou escreva para ${esc(remet)}.` : ''}</p>
+    </td></tr>
+  </table>
+</td></tr></table>`
+  }
+
+  function renderEmail() {
+    $('email').innerHTML = htmlEmail(true)
+    $('p-assunto').textContent = $('f-assunto').value || '(sem assunto)'
+    $('remetente-txt').textContent = $('f-remetente').value || '—'
+  }
+  campos.forEach((k) => $('f-' + k).addEventListener('input', renderEmail))
+
+  // ───────── Copiar ─────────
+  let timer
+  function avisar(msg) { $('feito').textContent = msg; clearTimeout(timer); timer = setTimeout(() => ($('feito').textContent = ''), 3500) }
+
+  async function copiarTexto(txt, botao) {
+    try { await navigator.clipboard.writeText(txt) }
+    catch {
+      const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select()
+      try { document.execCommand('copy') } catch {}
+      ta.remove()
+    }
+    if (botao) { const o = botao.textContent; botao.textContent = 'Copiado ✓'; setTimeout(() => (botao.textContent = o), 2200) }
+    else avisar('Copiado')
+  }
+
+  $('copiar-assunto').addEventListener('click', () => copiarTexto($('f-assunto').value, $('copiar-assunto')))
+
+  $('copiar-email').addEventListener('click', async () => {
+    const html = htmlEmail()
+    const texto = $('email').innerText
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([texto], { type: 'text/plain' })
+      })])
+      avisar('E-mail copiado. Cole no corpo do Gmail.')
+    } catch {
+      // Plano B: seleciona a prévia renderizada e copia como conteúdo formatado.
+      const sel = window.getSelection(); const r = document.createRange()
+      r.selectNodeContents($('email')); sel.removeAllRanges(); sel.addRange(r)
+      let ok = false
+      try { ok = document.execCommand('copy') } catch {}
+      if (ok) { sel.removeAllRanges(); avisar('E-mail copiado. Cole no corpo do Gmail.') }
+      else avisar('A prévia ficou selecionada. Use Ctrl/⌘ + C para copiar.')
+    }
+  })
+
+  // ───────── Início ─────────
+  $('f-assinatura').value = estado.assinatura
+  $('f-remetente').value = estado.remetente
+  $('f-logo').value = estado.logo
+  aplicarModelo('decimo')
+})()
+</script>
