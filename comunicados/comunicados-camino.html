@@ -69,7 +69,13 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 .chip .q { color: var(--ink-soft); font-variant-numeric: tabular-nums }
 .chip.off { opacity: .55 }
 
-.modelos { display: flex; flex-wrap: wrap; gap: 8px }
+.modelos { display: grid; gap: 12px }
+.grupo { display: grid; gap: 6px }
+.modelos-linha { display: flex; flex-wrap: wrap; gap: 8px }
+.modelo { display: inline-flex; align-items: center; gap: 8px }
+.tn { width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; background: var(--field); color: var(--ink-soft); font-variant-numeric: tabular-nums }
+.modelo[aria-pressed="true"] .tn { background: var(--accent); color: var(--accent-ink) }
+.qd { font-weight: 500; font-size: 12px; color: var(--ink-soft) }
 .modelo { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px; cursor: pointer }
 .modelo[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--field) }
 
@@ -161,6 +167,8 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
           <div class="destaques" id="destaques"></div>
           <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
         </div>
+        <label>Fechamento <span style="font-weight:400">— vem depois do quadro de destaques</span><textarea id="f-fecho" rows="3"></textarea></label>
+        <p class="dica">Use <code>{remetente}</code> no texto para inserir o e-mail do canal.</p>
         <div class="linha">
           <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
           <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
@@ -197,9 +205,31 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
 
   // ───────── Modelos ─────────
+  // Formatos fixos da newsletter: a etiqueta no topo do e-mail diz qual é.
+  const FORMATOS = {
+    fique: 'Fique por dentro',
+    gente: 'Gente que faz',
+    saber: 'Saber+'
+  }
   const MODELOS = {
+    lancamento: {
+      trilha: 1, quando: 'Ter 17/11',
+      nome: 'Lançamento do canal', etiqueta: 'Novo canal',
+      assunto: 'Agora é oficial: o RH tem um canal direto com você',
+      titulo: 'Agora é oficial: temos um canal do RH com você',
+      corpo: 'Olá, time!\n\nA partir de hoje, a Camino tem um canal oficial de comunicação entre o time de Pessoas e todos os colaboradores: o e-mail **{remetente}**.\n\nÉ por aqui que vão chegar as informações importantes do seu dia a dia na Camino: datas de pagamento, benefícios, prazos, documentos e também as conquistas do nosso time. Tudo num lugar só, sem depender de grupo de WhatsApp ou do boca a boca.\n\n**Como vai funcionar:** toda semana você recebe de 2 a 3 e-mails curtos. Cada um traz no topo uma etiqueta que mostra do que se trata:',
+      destaques: [
+        ['Fique por dentro', 'Às terças. Avisos práticos: folha, benefícios, prazos e documentos.'],
+        ['Gente que faz', 'Às quintas. Quem chegou, aniversariantes, conquistas e reconhecimentos.'],
+        ['Saber+', 'A cada 15 dias. Seus direitos explicados sem juridiquês: holerite, férias, 13º, plano de saúde.']
+      ],
+      fecho: '**Tem dúvida ou ideia de tema?** Responda qualquer e-mail deste canal. A resposta chega direto no time de Pessoas.\n\nE uma dica: salve **{remetente}** nos seus contatos, assim nossos e-mails não caem no spam.',
+      cta: '', link: '',
+      regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    },
     decimo: {
-      nome: '13º salário', etiqueta: 'Folha de pagamento',
+      trilha: 2, quando: 'Qui 19/11',
+      nome: '13º salário', etiqueta: FORMATOS.fique + ' · 13º salário',
       assunto: '13º salário 2026: datas de pagamento',
       titulo: 'Seu 13º salário está chegando',
       corpo: 'Olá, time!\n\nQueremos deixar todo mundo por dentro das datas do **13º salário** deste ano. O pagamento é feito em duas parcelas, direto na conta em que você já recebe o salário.\n\nA **1ª parcela** corresponde a metade do salário, sem descontos. Na **2ª parcela** entram os descontos de INSS e Imposto de Renda, calculados sobre o valor total do 13º.\n\nQuem entrou na Camino ao longo do ano recebe o valor proporcional aos meses trabalhados (1/12 por mês com 15 dias ou mais).\n\nFicou com alguma dúvida? É só responder este e-mail.',
@@ -208,8 +238,37 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': false },
       aviso: 'Estagiários não têm direito a 13º (Lei do Estágio), por isso ficam fora deste comunicado. Marque se quiser incluir.'
     },
+    holerite: {
+      trilha: 3, quando: 'Ter 24/11',
+      nome: 'Como ler seu holerite', etiqueta: FORMATOS.saber + ' · Holerite',
+      assunto: 'Saber+: entenda cada linha do seu holerite',
+      titulo: 'Seu holerite, linha por linha',
+      corpo: 'Olá, time!\n\nEstreando o **Saber+**, o formato em que a gente explica seus direitos sem juridiquês. Para começar, o documento que todo mundo recebe e quase ninguém lê com calma: o **holerite**.\n\nEle tem duas colunas principais. Em **proventos** entra tudo o que você ganha no mês. Em **descontos** entra o que sai antes de o dinheiro cair na conta. A diferença entre as duas é o seu **salário líquido**.\n\nVale saber: o **FGTS** aparece no holerite, mas não é descontado de você. É a Camino que deposita, todo mês, numa conta no seu nome na Caixa.',
+      destaques: [
+        ['Proventos', 'Salário, horas extras, adicionais e outros valores que você recebe'],
+        ['INSS', 'Contribuição para a sua aposentadoria, com alíquota por faixa de salário'],
+        ['IRRF', 'Imposto de Renda, só a partir de certa faixa de salário'],
+        ['Vale-transporte', 'Desconto de até 6% do salário base, para quem usa o benefício'],
+        ['FGTS', 'Depositado pela Camino (8% do salário; 2% para jovem aprendiz). Não sai do seu bolso']
+      ],
+      fecho: 'Ficou alguma linha sem explicação? Responda este e-mail com a dúvida e ela pode virar tema do próximo Saber+.',
+      cta: '', link: '',
+      regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': false },
+      aviso: 'Estagiários recebem bolsa sem INSS e FGTS, por isso ficam fora deste comunicado. Marque se quiser incluir.'
+    },
+    gente: {
+      trilha: 4, quando: 'Qui 26/11',
+      nome: 'Gente que faz', etiqueta: FORMATOS.gente,
+      assunto: 'Gente que faz: quem chegou e quem fez aniversário',
+      titulo: 'Gente que faz a Camino',
+      corpo: 'Olá, time!\n\nToda quinta vamos parar um minuto para olhar para quem faz a Camino acontecer.\n\n**Boas-vindas** a quem chegou: [nomes e áreas].\n\n**Parabéns** a quem faz aniversário este mês: [nomes].\n\n**Conquistas:** [uma conquista, promoção ou projeto do time que mereça ser contado].',
+      destaques: [],
+      fecho: 'Quer indicar alguém para aparecer aqui? Responda este e-mail contando o porquê.',
+      cta: '', link: '',
+      regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    },
     ferias: {
-      nome: 'Recesso / férias coletivas', etiqueta: 'Calendário',
+      nome: 'Recesso / férias coletivas', etiqueta: 'Fique por dentro · Recesso',
       assunto: 'Recesso de fim de ano: o que muda',
       titulo: 'Nosso recesso de fim de ano',
       corpo: 'Olá, time!\n\nO ano está chegando ao fim e queremos organizar com antecedência o nosso período de **recesso**.\n\nDurante esses dias as atividades ficam suspensas. Se a sua área tiver algum plantão, a liderança vai combinar diretamente com você.\n\nAproveitem para descansar. Voltamos com tudo!',
@@ -217,7 +276,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       cta: '', link: '', regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
     },
     beneficio: {
-      nome: 'Benefícios', etiqueta: 'Benefícios',
+      nome: 'Benefícios', etiqueta: 'Fique por dentro · Benefícios',
       assunto: 'Novidade nos seus benefícios',
       titulo: 'Uma novidade nos seus benefícios',
       corpo: 'Olá, time!\n\nTemos uma novidade sobre os benefícios da Camino e queremos que todo mundo saiba primeiro por aqui.\n\nExplique aqui o que muda, a partir de quando e se a pessoa precisa fazer alguma coisa.',
@@ -236,9 +295,9 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   const LOGO_PREVIA = 'data:image/png;base64,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'
   const REGIMES_ALVO = ['CLT', 'Jovem Aprendiz', 'Estagiário']
   const estado = {
-    modelo: 'decimo',
+    modelo: 'lancamento',
     pessoas: [],
-    regimes: { ...MODELOS.decimo.regimes },
+    regimes: { ...MODELOS.lancamento.regimes },
     status: {},
     remetente: 'pessoas@caminoschool.com.br',
     logo: 'https://rh.caminoschool.com.br/logo-camino-school.png',
@@ -401,17 +460,25 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   $('usar-camino').addEventListener('change', renderLista)
 
   // ───────── Formulário ─────────
-  const campos = ['assunto', 'etiqueta', 'titulo', 'corpo', 'cta', 'link', 'assinatura', 'remetente', 'logo']
+  const campos = ['assunto', 'etiqueta', 'titulo', 'corpo', 'fecho', 'cta', 'link', 'assinatura', 'remetente', 'logo']
   let destaques = []
 
   function renderModelos() {
     const c = $('modelos'); c.innerHTML = ''
-    for (const [id, m] of Object.entries(MODELOS)) {
-      const b = document.createElement('button')
-      b.type = 'button'; b.className = 'modelo'; b.textContent = m.nome
-      b.setAttribute('aria-pressed', String(id === estado.modelo))
-      b.addEventListener('click', () => aplicarModelo(id))
-      c.appendChild(b)
+    const grupos = [['Trilha de lançamento', ([, m]) => m.trilha], ['Avulsos', ([, m]) => !m.trilha]]
+    for (const [rotulo, filtro] of grupos) {
+      const g = document.createElement('div'); g.className = 'grupo'
+      g.innerHTML = `<div class="dica">${rotulo}</div>`
+      const linha = document.createElement('div'); linha.className = 'modelos-linha'
+      for (const [id, m] of Object.entries(MODELOS).filter(filtro).sort((a, b) => (a[1].trilha || 0) - (b[1].trilha || 0))) {
+        const b = document.createElement('button')
+        b.type = 'button'; b.className = 'modelo'
+        b.innerHTML = m.trilha ? `<span class="tn">${m.trilha}</span>${esc(m.nome)}<span class="qd">${esc(m.quando)}</span>` : esc(m.nome)
+        b.setAttribute('aria-pressed', String(id === estado.modelo))
+        b.addEventListener('click', () => aplicarModelo(id))
+        linha.appendChild(b)
+      }
+      g.appendChild(linha); c.appendChild(g)
     }
   }
 
@@ -419,7 +486,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     estado.modelo = id
     const m = MODELOS[id]
     $('f-assunto').value = m.assunto; $('f-etiqueta').value = m.etiqueta; $('f-titulo').value = m.titulo
-    $('f-corpo').value = m.corpo; $('f-cta').value = m.cta; $('f-link').value = m.link
+    $('f-corpo').value = m.corpo; $('f-fecho').value = m.fecho || ''; $('f-cta').value = m.cta; $('f-link').value = m.link
     destaques = m.destaques.map((d) => [...d])
     estado.regimes = { ...m.regimes }
     renderModelos(); renderDestaques(); renderLista(); renderEmail()
@@ -445,14 +512,17 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   function htmlEmail(previa) {
     const v = (k) => $('f-' + k).value.trim()
     const F = "font-family:'Segoe UI',Helvetica,Arial,sans-serif"
-    const paragrafos = v('corpo').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+    const remet = v('remetente')
+    const blocos = (t) => t.replace(/\{remetente\}/g, remet || 'o e-mail do RH').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
       .map((p) => `<p style="margin:0 0 14px;${F};font-size:15px;line-height:1.6;color:#4A4350">${inline(p).replace(/\n/g, '<br>')}</p>`).join('')
+    const paragrafos = blocos(v('corpo'))
+    const fecho = blocos(v('fecho'))
     const ds = destaques.filter((d) => d[0].trim() || d[1].trim())
     const quadro = ds.length ? `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:6px 0 18px;background:#FBF6FB;border-radius:10px">
         ${ds.map((d, i) => `<tr>
           <td style="${F};font-size:13px;color:#8E1F8F;font-weight:700;padding:12px 16px;${i ? 'border-top:1px solid #EFE3F0;' : ''}width:40%;vertical-align:top">${esc(d[0])}</td>
-          <td style="${F};font-size:15px;color:#26202B;font-weight:600;padding:12px 16px;${i ? 'border-top:1px solid #EFE3F0;' : ''}vertical-align:top">${esc(d[1])}</td>
+          <td style="${F};font-size:14px;line-height:1.5;color:#26202B;font-weight:600;padding:12px 16px;${i ? 'border-top:1px solid #EFE3F0;' : ''}vertical-align:top">${esc(d[1])}</td>
         </tr>`).join('')}
       </table>` : ''
     const cta = v('cta') && /^https?:\/\//.test(v('link')) ? `
@@ -462,7 +532,6 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     const logo = /^https?:\/\//.test(v('logo'))
       ? `<img src="${previa ? LOGO_PREVIA : esc(v('logo'))}" alt="Camino School" width="140" style="display:block;width:140px;height:auto;border:0">`
       : `<span style="${F};font-size:26px;font-weight:900;color:#E6007E">camino</span>`
-    const remet = v('remetente')
     return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#F3F0F5"><tr><td align="center" style="padding:8px 0">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden">
     <tr><td style="height:6px;line-height:6px;font-size:0;background:#E6007E;background-image:linear-gradient(90deg,#F7A600,#E6007E,#8E1F8F)">&nbsp;</td></tr>
@@ -470,7 +539,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     <tr><td style="padding:18px 32px 0">
       ${v('etiqueta') ? `<div style="${F};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#E6007E;margin:0 0 8px">${esc(v('etiqueta'))}</div>` : ''}
       ${v('titulo') ? `<h1 style="margin:0 0 18px;${F};font-size:26px;line-height:1.25;font-weight:800;color:#26202B">${esc(v('titulo'))}</h1>` : ''}
-      ${paragrafos}${quadro}${cta}
+      ${paragrafos}${quadro}${fecho}${cta}
     </td></tr>
     <tr><td style="padding:6px 32px 28px">
       <p style="margin:0;${F};font-size:15px;line-height:1.5;color:#26202B">Um abraço,<br><strong>${esc(v('assinatura'))}</strong></p>
@@ -530,6 +599,6 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   $('f-assinatura').value = estado.assinatura
   $('f-remetente').value = estado.remetente
   $('f-logo').value = estado.logo
-  aplicarModelo('decimo')
+  aplicarModelo('lancamento')
 })()
 </script>
