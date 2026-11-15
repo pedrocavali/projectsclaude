@@ -186,13 +186,12 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
           <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
         </div>
         <label>Assinatura<input type="text" id="f-assinatura"></label>
-        <label class="chip" style="justify-self:start"><input type="checkbox" id="f-cami" checked> Cami no topo do e-mail <span class="q">desligue em assuntos sérios</span></label>
         <details>
           <summary>Ajustes da marca</summary>
           <div style="display:grid;gap:10px;margin-top:10px">
             <label>E-mail remetente<input type="text" id="f-remetente"></label>
-            <label>Endereço da imagem do Cami (pública)<input type="url" id="f-camiurl"></label>
-            <label>Endereço do logo Camino (usado quando o Cami está desligado)<input type="url" id="f-logo"></label>
+            <label>Endereço da imagem do logo (C) — precisa ser pública<input type="url" id="f-camiurl"></label>
+            <input type="hidden" id="f-logo">
           </div>
         </details>
       </section>
@@ -241,7 +240,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
         ['Fique por dentro', 'Às terças. Avisos práticos: folha, benefícios, prazos e documentos.'],
         ['Saber+', 'A cada 15 dias, às quintas. Seus direitos explicados sem juridiquês: holerite, férias, 13º, plano de saúde.']
       ],
-      fecho: 'Ah, e prazer: este aqui no topo é o **Cami**, o personagem do nosso canal. Sempre que ele aparecer, é o RH falando com você.\n\n**Tem dúvida ou ideia de tema?** Responda qualquer e-mail deste canal. A resposta chega direto no time de Pessoas.\n\nE uma dica: salve **{remetente}** nos seus contatos, assim nossos e-mails não caem no spam.',
+      fecho: 'Repare no **C** aqui no topo: ele é a marca do nosso canal. Sempre que ele aparecer, é o RH falando com você.\n\n**Tem dúvida ou ideia de tema?** Responda qualquer e-mail deste canal. A resposta chega direto no time de Pessoas.\n\nE uma dica: salve **{remetente}** nos seus contatos, assim nossos e-mails não caem no spam.',
       cta: '', link: '',
       regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
     },
@@ -578,9 +577,9 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 18px"><tr>
         <td style="background:#8E1F8F;border-radius:8px"><a href="${esc(v('link'))}" style="display:inline-block;padding:12px 22px;${F};font-size:14px;font-weight:700;color:#FFFFFF;text-decoration:none">${esc(v('cta'))}</a></td>
       </tr></table>` : ''
-    const comCami = $('f-cami').checked && (previa || /^https?:\/\//.test(v('camiurl')))
+    const comCami = (previa || /^https?:\/\//.test(v('camiurl')))
     const cabecalho = comCami ? `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
-        <td style="vertical-align:middle;padding-right:12px"><img src="${previa ? CAMI_PREVIA : esc(v('camiurl'))}" alt="Cami" width="52" height="52" style="display:block;width:52px;height:52px;border:0"></td>
+        <td style="vertical-align:middle;padding-right:12px"><img src="${previa ? CAMI_PREVIA : esc(v('camiurl'))}" alt="Pessoas · Camino School" width="52" height="52" style="display:block;width:52px;height:52px;border:0"></td>
         <td style="vertical-align:middle"><div style="${F};font-size:24px;line-height:1;font-weight:800;color:#26202B">Pessoas<span style="color:#E6007E">.</span></div>
         <div style="${F};font-size:12px;line-height:1.4;color:#8A8190;padding-top:4px">Camino School · o RH com você</div></td>
       </tr></table>` : null
@@ -679,7 +678,6 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   $('f-remetente').value = estado.remetente
   $('f-logo').value = estado.logo
   $('f-camiurl').value = estado.camiurl
-  $('f-cami').addEventListener('change', renderEmail)
   aplicarModelo('lancamento')
 })()
 </script>
