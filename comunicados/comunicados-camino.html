@@ -579,16 +579,16 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#F3F0F5"><tr><td align="center" style="padding:8px 0">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden">
     <tr><td style="height:6px;line-height:6px;font-size:0;background:#E6007E;background-image:linear-gradient(90deg,#F7A600,#E6007E,#8E1F8F)">&nbsp;</td></tr>
-    <tr><td style="padding:26px 32px 6px">${logo}</td></tr>
-    <tr><td style="padding:18px 32px 0">
+    <tr><td style="padding:24px 24px 4px">${logo}</td></tr>
+    <tr><td style="padding:16px 24px 0">
       ${v('etiqueta') ? `<div style="${F};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#E6007E;margin:0 0 8px">${esc(v('etiqueta'))}</div>` : ''}
       ${v('titulo') ? `<h1 style="margin:0 0 18px;${F};font-size:26px;line-height:1.25;font-weight:800;color:#26202B">${esc(v('titulo'))}</h1>` : ''}
       ${paragrafos}${quadro}${fecho}${cta}
     </td></tr>
-    <tr><td style="padding:6px 32px 28px">
+    <tr><td style="padding:6px 24px 26px">
       <p style="margin:0;${F};font-size:15px;line-height:1.5;color:#26202B">Um abraço,<br><strong>${esc(v('assinatura'))}</strong></p>
     </td></tr>
-    <tr><td style="padding:16px 32px;background:#FAF7FA;border-top:1px solid #EFE8F0">
+    <tr><td style="padding:16px 24px;background:#FAF7FA;border-top:1px solid #EFE8F0">
       <p style="margin:0;${F};font-size:12px;line-height:1.5;color:#8A8190">Comunicado interno para colaboradores da Camino School.${remet ? ` Dúvidas? Responda este e-mail ou escreva para ${esc(remet)}.` : ''}</p>
     </td></tr>
   </table>
