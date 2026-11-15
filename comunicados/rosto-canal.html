@@ -1,0 +1,183 @@
+<title>Rosto do Canal Pessoas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: grade de propostas de personagem, depois a mesma marca do canal aplicada com cada um. */
+:root {
+  --bg: #FBFAF8; --panel: #FFFFFF; --ink: #26202B; --ink-soft: #6C6472; --line: #E8E3EA; --field: #F6F3F7;
+  --stage: #FFFFFF; --accent: #8E1F8F; --magenta: #E6007E;
+  --f-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430; --accent: #D35BD4; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430; --accent: #D35BD4; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55 }
+.faixa { height: 6px; background: linear-gradient(90deg, #F7A600, #E6007E, #8E1F8F) }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1 { font-family: var(--f-display); font-weight: 900; font-size: 32px; margin: 0; text-wrap: balance }
+.sub { color: var(--ink-soft); margin: 6px 0 28px; max-width: 68ch }
+.opcoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px }
+.opcao { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: grid; grid-template-rows: auto 1fr }
+.palco { background: var(--stage); border-bottom: 1px solid var(--line); display: grid; place-items: center; padding: 18px; aspect-ratio: 5 / 4 }
+.palco svg { width: 100%; max-width: 220px; height: auto; max-height: 100% }
+.info { padding: 16px 18px 20px; display: grid; gap: 6px; align-content: start }
+.letra { font-family: var(--f-display); font-weight: 900; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent) }
+h2 { font-family: var(--f-display); font-weight: 800; font-size: 20px; margin: 0 }
+.info p { margin: 0; color: var(--ink-soft) }
+.info .sim, .info .nao { font-size: 13px }
+.info b { color: var(--ink); font-weight: 600 }
+.rec { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) }
+.selo-rec { justify-self: start; font-size: 11.5px; font-weight: 700; color: #FFFFFF; background: var(--accent); border-radius: 999px; padding: 2px 10px }
+h3 { font-family: var(--f-display); font-weight: 800; font-size: 22px; margin: 44px 0 6px }
+.dica { color: var(--ink-soft); margin: 0 0 16px; max-width: 68ch }
+.lockups { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px }
+.lock { background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-family: "Segoe UI", Helvetica, Arial, sans-serif }
+.lock .top { height: 5px; background: linear-gradient(90deg, #F7A600, #E6007E, #8E1F8F) }
+.lock .cab { display: flex; align-items: center; gap: 12px; padding: 16px 18px }
+.lock svg { width: 46px; height: 46px; flex: none }
+.lock .marca { font-family: var(--f-display); font-weight: 900; font-size: 22px; color: #26202B; line-height: 1 }
+.lock .marca span { color: #E6007E }
+.lock .linha { font-size: 12px; color: #8A8190; margin-top: 4px }
+.lock .rot { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8E1F8F; padding: 0 18px 14px }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7A600"/><stop offset=".5" stop-color="#E6007E"/><stop offset="1" stop-color="#8E1F8F"/></linearGradient>
+    <linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7A600"/><stop offset=".55" stop-color="#E6007E"/><stop offset="1" stop-color="#8E1F8F"/></linearGradient>
+    <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F7A600"/><stop offset=".55" stop-color="#E6007E"/><stop offset="1" stop-color="#8E1F8F"/></linearGradient>
+    <!-- rosto escuro, centrado em 0,0 -->
+    <g id="rosto">
+      <ellipse cx="-12" cy="-4" rx="5.5" ry="7.5" fill="#26202B"/><ellipse cx="12" cy="-4" rx="5.5" ry="7.5" fill="#26202B"/>
+      <circle cx="-10" cy="-7" r="2" fill="#FFFFFF"/><circle cx="14" cy="-7" r="2" fill="#FFFFFF"/>
+      <circle cx="-22" cy="10" r="5.5" fill="#E6007E" opacity=".22"/><circle cx="22" cy="10" r="5.5" fill="#E6007E" opacity=".22"/>
+      <path d="M-10 8 Q0 18 10 8" fill="none" stroke="#26202B" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <!-- rosto claro, para fundos coloridos -->
+    <g id="rostoClaro">
+      <ellipse cx="-12" cy="-4" rx="6.5" ry="8.5" fill="#FFFFFF"/><ellipse cx="12" cy="-4" rx="6.5" ry="8.5" fill="#FFFFFF"/>
+      <circle cx="-11" cy="-3" r="3.6" fill="#26202B"/><circle cx="13" cy="-3" r="3.6" fill="#26202B"/>
+      <path d="M-10 9 Q0 19 10 9" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- 1. Pê: balão de conversa -->
+    <g id="pe">
+      <path d="M58 140 L46 176 L94 140 Z" fill="#E6007E"/>
+      <rect x="26" y="30" width="148" height="114" rx="44" fill="url(#gd)"/>
+      <use href="#rostoClaro" transform="translate(100 86) scale(1.35)"/>
+    </g>
+
+    <!-- 2. Turma: três pessoas abraçadas -->
+    <g id="turma">
+      <rect x="22" y="62" width="54" height="118" rx="27" fill="#F7A600"/>
+      <rect x="124" y="62" width="54" height="118" rx="27" fill="#8E1F8F"/>
+      <rect x="70" y="38" width="60" height="142" rx="30" fill="#E6007E"/>
+      <path d="M78 112 Q60 118 50 108" stroke="#E6007E" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <path d="M122 112 Q140 118 150 108" stroke="#E6007E" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <use href="#rostoClaro" transform="translate(49 92) scale(.72)"/>
+      <use href="#rostoClaro" transform="translate(100 72) scale(.8)"/>
+      <use href="#rostoClaro" transform="translate(151 92) scale(.72)"/>
+    </g>
+
+    <!-- 3. Carta: envelope com aba aberta -->
+    <g id="carta">
+      <path d="M34 72 L100 22 L166 72 Z" fill="url(#gh)" stroke="url(#gh)" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M100 30 c-6 -9 -18 -2 -10 7 l10 9 l10 -9 c8 -9 -4 -16 -10 -7z" fill="#FFFFFF" transform="translate(0 6)"/>
+      <rect x="30" y="68" width="140" height="102" rx="14" fill="#FFFFFF" stroke="url(#gh)" stroke-width="8"/>
+      <path d="M34 160 L82 122 M166 160 L118 122" stroke="#EFE3F0" stroke-width="5" stroke-linecap="round"/>
+      <use href="#rosto" transform="translate(100 112) scale(1.05)"/>
+    </g>
+
+    <!-- 4. Rumo: placa de caminho -->
+    <g id="rumo">
+      <rect x="94" y="60" width="12" height="122" rx="6" fill="#8E1F8F"/>
+      <ellipse cx="100" cy="184" rx="34" ry="7" fill="#8E1F8F" opacity=".25"/>
+      <path d="M30 28 H150 L178 62 L150 96 H30 Q22 96 22 88 V36 Q22 28 30 28 Z" fill="url(#gh)" stroke="url(#gh)" stroke-width="4" stroke-linejoin="round"/>
+      <use href="#rostoClaro" transform="translate(96 62) scale(1.15)"/>
+      <path d="M150 112 H58 L36 134 L58 156 H150 Q158 156 158 148 V120 Q158 112 150 112 Z" fill="#8E1F8F"/>
+      <text x="102" y="140" text-anchor="middle" font-family="Nunito, Segoe UI, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF">Pessoas</text>
+    </g>
+
+    <!-- 5. Cami: o "c" da Camino -->
+    <g id="cami">
+      <path d="M144.2 55.8 A62.5 62.5 0 1 0 144.2 144.2" fill="none" stroke="url(#gv)" stroke-width="44" stroke-linecap="round"/>
+      <use href="#rosto" transform="translate(98.5 98)"/>
+    </g>
+  </defs>
+</svg>
+
+<div class="faixa"></div>
+<div class="wrap">
+  <h1>Rosto do canal Pessoas</h1>
+  <p class="sub">Cinco caminhos para ser a cara do e-mail do RH. Todos usam as cores da Camino e o mesmo rosto, para continuarem da família. Escolha um, ou misture: dá pra pegar o personagem de uma opção e o nome de outra.</p>
+
+  <div class="opcoes">
+    <article class="opcao rec">
+      <div class="palco"><svg viewBox="0 0 200 200" role="img" aria-label="Pê, um balão de conversa sorridente"><use href="#pe"/></svg></div>
+      <div class="info">
+        <span class="selo-rec">Minha escolha</span>
+        <span class="letra">Opção 1</span>
+        <h2>Pê</h2>
+        <p>Um balão de conversa com rosto. "Pê" de Pessoas.</p>
+        <p class="sim"><b>Diz:</b> este é um canal para conversar, pode responder.</p>
+        <p class="nao"><b>Cuidado:</b> balão é um símbolo comum; o degradê da Camino é o que o torna nosso.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco"><svg viewBox="0 0 200 200" role="img" aria-label="Turma, três pessoas abraçadas nas cores da Camino"><use href="#turma"/></svg></div>
+      <div class="info">
+        <span class="letra">Opção 2</span>
+        <h2>Turma</h2>
+        <p>Três pessoas abraçadas, uma em cada cor da Camino.</p>
+        <p class="sim"><b>Diz:</b> somos todos nós, o time inteiro. É o mais fiel ao nome "Pessoas".</p>
+        <p class="nao"><b>Cuidado:</b> não fala em primeira pessoa como um personagem só; é mais selo que mascote.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco"><svg viewBox="0 0 200 200" role="img" aria-label="Carta, um envelope sorridente com coração"><use href="#carta"/></svg></div>
+      <div class="info">
+        <span class="letra">Opção 3</span>
+        <h2>Carta</h2>
+        <p>Um envelope sorridente, com coração na aba.</p>
+        <p class="sim"><b>Diz:</b> chegou notícia do RH. Fácil de reconhecer na caixa de entrada.</p>
+        <p class="nao"><b>Cuidado:</b> fica preso ao e-mail; se o canal for para mural ou WhatsApp, perde sentido.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco"><svg viewBox="0 0 200 200" role="img" aria-label="Rumo, uma placa de caminho sorridente"><use href="#rumo"/></svg></div>
+      <div class="info">
+        <span class="letra">Opção 4</span>
+        <h2>Rumo</h2>
+        <p>Uma placa de caminho com rosto. Camino quer dizer caminho.</p>
+        <p class="sim"><b>Diz:</b> o RH te orienta. Combina muito com o Saber+.</p>
+        <p class="nao"><b>Cuidado:</b> mais detalhado, perde força quando fica pequeno.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco"><svg viewBox="0 0 200 200" role="img" aria-label="Cami, o c da Camino com rosto"><use href="#cami"/></svg></div>
+      <div class="info">
+        <span class="letra">Opção 5</span>
+        <h2>Cami</h2>
+        <p>A proposta anterior: o "c" do símbolo da Camino com rosto.</p>
+        <p class="sim"><b>Diz:</b> isto é Camino. O mais ligado à marca.</p>
+        <p class="nao"><b>Cuidado:</b> representa a escola inteira, não só o RH; pode confundir com comunicação institucional.</p>
+      </div>
+    </article>
+  </div>
+
+  <h3>A marca do canal no topo do e-mail</h3>
+  <p class="dica">O padrão fixo de todo e-mail: personagem + "Pessoas" + a linha "Camino School · o RH com você". Muda só o personagem, para você comparar no tamanho real.</p>
+  <div class="lockups">
+    <div class="lock"><div class="top"></div><div class="cab"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#pe"/></svg><div><div class="marca">Pessoas<span>.</span></div><div class="linha">Camino School · o RH com você</div></div></div><div class="rot">Com o Pê</div></div>
+    <div class="lock"><div class="top"></div><div class="cab"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#turma"/></svg><div><div class="marca">Pessoas<span>.</span></div><div class="linha">Camino School · o RH com você</div></div></div><div class="rot">Com a Turma</div></div>
+    <div class="lock"><div class="top"></div><div class="cab"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#carta"/></svg><div><div class="marca">Pessoas<span>.</span></div><div class="linha">Camino School · o RH com você</div></div></div><div class="rot">Com a Carta</div></div>
+    <div class="lock"><div class="top"></div><div class="cab"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#rumo"/></svg><div><div class="marca">Pessoas<span>.</span></div><div class="linha">Camino School · o RH com você</div></div></div><div class="rot">Com o Rumo</div></div>
+    <div class="lock"><div class="top"></div><div class="cab"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#cami"/></svg><div><div class="marca">Pessoas<span>.</span></div><div class="linha">Camino School · o RH com você</div></div></div><div class="rot">Com o Cami</div></div>
+  </div>
+</div>
