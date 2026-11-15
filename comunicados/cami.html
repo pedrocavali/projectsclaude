@@ -1,0 +1,190 @@
+<title>Cami do RH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: três propostas lado a lado, depois a aplicação no e-mail. */
+:root {
+  --bg: #FBFAF8; --panel: #FFFFFF; --ink: #26202B; --ink-soft: #6C6472; --line: #E8E3EA; --field: #F6F3F7;
+  --stage: #FFFFFF; --accent: #8E1F8F;
+  --f-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430; --accent: #D35BD4; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #17141A; --panel: #201C24; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #352E3A; --field: #2A2430; --accent: #D35BD4; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55 }
+.faixa { height: 6px; background: linear-gradient(90deg, #F7A600, #E6007E, #8E1F8F) }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1 { font-family: var(--f-display); font-weight: 900; font-size: 32px; margin: 0; text-wrap: balance }
+.sub { color: var(--ink-soft); margin: 6px 0 28px; max-width: 64ch }
+.opcoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px }
+@media (max-width: 860px) { .opcoes { grid-template-columns: minmax(0, 1fr) } }
+.opcao { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: grid; grid-template-rows: auto 1fr }
+.palco { background: var(--stage); border-bottom: 1px solid var(--line); display: grid; place-items: center; padding: 22px; aspect-ratio: 1 / 1 }
+.palco svg { width: 100%; max-width: 260px; height: auto }
+.info { padding: 16px 18px 20px; display: grid; gap: 6px; align-content: start }
+.letra { font-family: var(--f-display); font-weight: 900; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent) }
+h2 { font-family: var(--f-display); font-weight: 800; font-size: 20px; margin: 0 }
+.info p { margin: 0; color: var(--ink-soft) }
+.uso { font-size: 13px }
+.uso b { color: var(--ink); font-weight: 600 }
+h3 { font-family: var(--f-display); font-weight: 800; font-size: 22px; margin: 44px 0 6px }
+.aplic { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start }
+@media (max-width: 860px) { .aplic { grid-template-columns: minmax(0, 1fr) } }
+.mail { background: #FFFFFF; color: #26202B; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-family: "Segoe UI", Helvetica, Arial, sans-serif }
+.mail .top { height: 6px; background: linear-gradient(90deg, #F7A600, #E6007E, #8E1F8F) }
+.mail .corpo { padding: 22px 24px }
+.mail .tag { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E6007E; margin-bottom: 8px }
+.mail h4 { margin: 0 0 12px; font-size: 22px; line-height: 1.25; font-weight: 800 }
+.mail p { margin: 0 0 12px; font-size: 14.5px; color: #4A4350 }
+.ass { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid #EFE8F0; margin-top: 6px }
+.ass svg { width: 52px; height: 52px; flex: none }
+.ass .n { font-weight: 700; font-size: 14.5px; color: #26202B }
+.ass .c { font-size: 12.5px; color: #8A8190 }
+.balao { display: flex; gap: 14px; align-items: flex-start; background: #FBF6FB; border-radius: 12px; padding: 14px 16px; margin: 4px 0 14px }
+.balao svg { width: 64px; height: 64px; flex: none }
+.balao p { margin: 0; font-size: 14px; color: #26202B }
+.legenda { color: var(--ink-soft); font-size: 13px; margin: 8px 0 0 }
+.regras { margin: 0; padding-left: 18px; color: var(--ink-soft); display: grid; gap: 6px }
+.regras b { color: var(--ink) }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7A600"/><stop offset=".5" stop-color="#E6007E"/><stop offset="1" stop-color="#8E1F8F"/>
+    </linearGradient>
+    <!-- Cabeça do Cami: o "c" do símbolo da Camino com o rosto no espaço de dentro -->
+    <g id="cabeca">
+      <path d="M144.2 55.8 A62.5 62.5 0 1 0 144.2 144.2" fill="none" stroke="url(#cg)" stroke-width="44" stroke-linecap="round"/>
+      <ellipse cx="86" cy="94" rx="6" ry="8.5" fill="#26202B"/>
+      <ellipse cx="111" cy="94" rx="6" ry="8.5" fill="#26202B"/>
+      <circle cx="88.2" cy="90.6" r="2.3" fill="#FFFFFF"/>
+      <circle cx="113.2" cy="90.6" r="2.3" fill="#FFFFFF"/>
+      <circle cx="76" cy="111" r="6.5" fill="#E6007E" opacity=".22"/>
+      <circle cx="121" cy="111" r="6.5" fill="#E6007E" opacity=".22"/>
+      <path d="M87 110 Q98.5 122 110 110" fill="none" stroke="#26202B" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+  </defs>
+</svg>
+
+<div class="faixa"></div>
+<div class="wrap">
+  <h1>Cami, do time de Pessoas</h1>
+  <p class="sub">O Cami nasce do "c" do símbolo da Camino, com o mesmo degradê laranja, magenta e roxo. São três jeitos de usar o mesmo personagem, um para cada tipo de e-mail.</p>
+
+  <div class="opcoes">
+    <article class="opcao">
+      <div class="palco">
+        <svg viewBox="0 0 200 200" role="img" aria-label="Cami selo: o c da Camino com rosto sorridente">
+          <rect width="200" height="200" fill="none"/>
+          <use href="#cabeca"/>
+        </svg>
+      </div>
+      <div class="info">
+        <span class="letra">Versão A</span>
+        <h2>Cami selo</h2>
+        <p>Só o rosto, dentro do "c". Fica legível até em 40px.</p>
+        <p class="uso"><b>Onde usar:</b> assinatura de todo e-mail, foto de perfil do e-mail do RH, figurinha no WhatsApp.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco">
+        <svg viewBox="-10 -10 220 250" role="img" aria-label="Cami de corpo inteiro acenando">
+          <rect x="-10" y="-10" width="220" height="250" fill="none"/>
+          <!-- pernas -->
+          <path d="M88 182 L84 214" stroke="#8E1F8F" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <path d="M112 182 L116 214" stroke="#8E1F8F" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <ellipse cx="78" cy="219" rx="13" ry="7" fill="#26202B"/>
+          <ellipse cx="122" cy="219" rx="13" ry="7" fill="#26202B"/>
+          <!-- braço esquerdo -->
+          <path d="M42 128 Q26 140 18 156" stroke="#E6007E" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <circle cx="17" cy="160" r="8.5" fill="#E6007E"/>
+          <!-- braço direito acenando -->
+          <path d="M160 46 Q176 30 180 10" stroke="#F7A600" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <circle cx="181" cy="5" r="9" fill="#F7A600"/>
+          <path d="M194 -6 Q200 2 196 12" stroke="#F7A600" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
+          <path d="M202 -12 Q210 2 204 18" stroke="#F7A600" stroke-width="3" stroke-linecap="round" fill="none" opacity=".45"/>
+          <use href="#cabeca"/>
+        </svg>
+      </div>
+      <div class="info">
+        <span class="letra">Versão B</span>
+        <h2>Cami acenando</h2>
+        <p>Corpo inteiro, cumprimentando. O tom mais acolhedor das três.</p>
+        <p class="uso"><b>Onde usar:</b> e-mail de lançamento do canal, boas-vindas a quem chega, volta do recesso.</p>
+      </div>
+    </article>
+
+    <article class="opcao">
+      <div class="palco">
+        <svg viewBox="-10 -46 230 262" role="img" aria-label="Cami de capelo apontando para um balão escrito Saber mais">
+          <rect x="-10" y="-46" width="230" height="262" fill="none"/>
+          <use href="#cabeca"/>
+          <!-- capelo -->
+          <path d="M60 22 Q100 8 140 22 L140 34 Q100 22 60 34 Z" fill="#26202B"/>
+          <polygon points="100,-30 168,-6 100,18 32,-6" fill="#26202B"/>
+          <polygon points="100,-24 156,-6 100,12 44,-6" fill="#3A3240"/>
+          <circle cx="100" cy="-6" r="4" fill="#F7A600"/>
+          <path d="M100 -6 Q132 -2 150 6 L150 30" stroke="#F7A600" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M144 28 L156 28 L153 44 L147 44 Z" fill="#F7A600"/>
+          <!-- braço apontando -->
+          <path d="M40 132 Q22 120 14 100" stroke="#E6007E" stroke-width="9" stroke-linecap="round" fill="none"/>
+          <circle cx="13" cy="95" r="8.5" fill="#E6007E"/>
+          <path d="M13 87 L13 74" stroke="#E6007E" stroke-width="6" stroke-linecap="round"/>
+          <!-- balão -->
+          <rect x="150" y="150" width="66" height="40" rx="12" fill="#8E1F8F"/>
+          <path d="M160 150 L150 138 L172 150 Z" fill="#8E1F8F"/>
+          <text x="183" y="176" text-anchor="middle" font-family="Nunito, Segoe UI, sans-serif" font-weight="900" font-size="16" fill="#FFFFFF">Saber+</text>
+        </svg>
+      </div>
+      <div class="info">
+        <span class="letra">Versão C</span>
+        <h2>Cami professor</h2>
+        <p>De capelo, com o dedo levantado de quem vai explicar. Conversa com o fato de sermos uma escola.</p>
+        <p class="uso"><b>Onde usar:</b> abertura de todo Saber+ (holerite, férias, IR, plano de saúde).</p>
+      </div>
+    </article>
+  </div>
+
+  <h3>No e-mail</h3>
+  <div class="aplic">
+    <div>
+      <div class="mail">
+        <div class="top"></div>
+        <div class="corpo">
+          <div class="tag">Saber+ · Holerite</div>
+          <h4>Seu holerite, linha por linha</h4>
+          <div class="balao">
+            <svg viewBox="-10 -46 230 262" aria-hidden="true">
+              <use href="#cabeca"/>
+              <path d="M60 22 Q100 8 140 22 L140 34 Q100 22 60 34 Z" fill="#26202B"/>
+              <polygon points="100,-30 168,-6 100,18 32,-6" fill="#26202B"/>
+              <circle cx="100" cy="-6" r="4" fill="#F7A600"/>
+              <path d="M100 -6 Q132 -2 150 6 L150 30" stroke="#F7A600" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <path d="M144 28 L156 28 L153 44 L147 44 Z" fill="#F7A600"/>
+            </svg>
+            <p><b>Oi, eu sou o Cami!</b> Hoje vou te mostrar o que significa cada linha do seu holerite. Prometo que é rápido.</p>
+          </div>
+          <p>O holerite tem duas colunas principais. Em proventos entra tudo o que você ganha no mês…</p>
+          <div class="ass">
+            <svg viewBox="0 0 200 200" aria-hidden="true"><use href="#cabeca"/></svg>
+            <div><div class="n">Cami, do time de Pessoas</div><div class="c">pessoas@caminoschool.com.br</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="legenda">Saber+ com o Cami professor na abertura e o Cami selo na assinatura.</p>
+    </div>
+    <div>
+      <ul class="regras">
+        <li><b>Fala em primeira pessoa e de forma simples.</b> "Oi, eu sou o Cami" na abertura, depois o texto segue normal.</li>
+        <li><b>Aparece no que é leve ou educativo:</b> Saber+, lançamento do canal, lembretes, boas-vindas e recesso.</li>
+        <li><b>Fica de fora do que é sério:</b> salário e reajuste individual, desligamento, assuntos jurídicos, falecimento ou saúde. Nesses e-mails, quem assina é o "Time de Pessoas".</li>
+        <li><b>Muda pouco de forma:</b> sempre o mesmo "c" com rosto. O que muda é o acessório (capelo, aceno), nunca as cores.</li>
+        <li><b>Nome curto e fácil de lembrar:</b> vem direto de "Camino".</li>
+      </ul>
+    </div>
+  </div>
+</div>
