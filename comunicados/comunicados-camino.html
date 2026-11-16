@@ -180,7 +180,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
           <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
         </div>
         <label>Fechamento <span style="font-weight:400">— vem depois do quadro de destaques</span><textarea id="f-fecho" rows="3"></textarea></label>
-        <p class="dica">Use <code>{remetente}</code> no texto para inserir o e-mail do canal.</p>
+        <p class="dica">Use <code>{remetente}</code>, <code>{mes}</code> e <code>{prazo}</code> no texto: viram o e-mail do canal, o mês atual e o dia 15 do mês.</p>
         <div class="linha">
           <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
           <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
@@ -254,6 +254,28 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       cta: '', link: '',
       regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': false },
       aviso: 'Estagiários não têm direito a 13º (Lei do Estágio), por isso ficam fora deste comunicado. Marque se quiser incluir.'
+    },
+    nf8: {
+      grupo: 'pj', quando: 'Todo dia 8',
+      nome: 'Abertura do envio de NF', etiqueta: 'Prestadores · Nota fiscal',
+      assunto: 'NF de {mes}: envio aberto até {prazo}',
+      titulo: 'Já pode enviar sua nota fiscal de {mes}',
+      corpo: 'Olá!\n\nO envio das **notas fiscais referentes a {mes}** está aberto. É só usar o formulário da Camino, no botão abaixo. Leva poucos minutos.\n\nNotas enviadas **até {prazo}** ficam dentro do prazo deste mês.',
+      destaques: [['Prazo', 'até {prazo}'], ['Como enviar', 'Pelo formulário de NF, no botão abaixo'], ['Valor', 'Conforme seu contrato ou a medição do mês']],
+      fecho: 'Ficou com dúvida sobre o valor ou a descrição da nota? Responda este e-mail **antes de emitir**, assim ninguém precisa cancelar e emitir de novo.',
+      cta: 'Enviar minha NF', link: 'https://rh.caminoschool.com.br/notas-fiscais/enviar',
+      regimes: { 'PJ': true }
+    },
+    nf14: {
+      grupo: 'pj', quando: 'Todo dia 14',
+      nome: 'Último dia para a NF', etiqueta: 'Prestadores · Nota fiscal',
+      assunto: 'Último dia amanhã: NF de {mes} até {prazo}',
+      titulo: 'Amanhã é o último dia para enviar sua NF',
+      corpo: 'Olá!\n\nPassando para lembrar: o prazo para enviar a **nota fiscal de {mes}** termina **amanhã, {prazo}**.\n\nSe você já enviou, pode desconsiderar este e-mail. Obrigado!',
+      destaques: [['Prazo final', '{prazo}'], ['Como enviar', 'Pelo formulário de NF, no botão abaixo']],
+      fecho: 'Algum problema para emitir? Responda este e-mail hoje que a gente ajuda.',
+      cta: 'Enviar minha NF', link: 'https://rh.caminoschool.com.br/notas-fiscais/enviar',
+      regimes: { 'PJ': true }
     },
     holerite: {
       trilha: 3, quando: 'Ter 24/11',
@@ -339,7 +361,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     ]]
   ]
 
-  const REGIMES_ALVO = ['CLT', 'Jovem Aprendiz', 'Estagiário']
+  const REGIMES_ALVO = ['CLT', 'Jovem Aprendiz', 'Estagiário', 'PJ']
   const estado = {
     modelo: 'lancamento',
     pessoas: [],
@@ -475,12 +497,12 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       if (vistos.has(e)) continue
       vistos.add(e); destinatarios.push(e)
     }
-    const pjs = estado.pessoas.filter((p) => p.regime === 'PJ').length
+    const fora = estado.pessoas.filter((p) => !estado.regimes[p.regime]).length
 
     $('resumo').innerHTML =
       `<div><b>${destinatarios.length}</b>e-mails prontos</div>` +
       `<div><b>${semEmail.length}</b>sem e-mail pessoal</div>` +
-      `<div><b>${pjs}</b>PJs fora da lista</div>`
+      `<div><b>${fora}</b>fora deste público</div>`
 
     const av = $('avisos'); av.innerHTML = ''
     const m = MODELOS[estado.modelo]
@@ -513,7 +535,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
 
   function renderModelos() {
     const c = $('modelos'); c.innerHTML = ''
-    const grupos = [['Trilha de lançamento', ([, m]) => m.trilha], ['Avulsos', ([, m]) => !m.trilha]]
+    const grupos = [['Trilha de lançamento', ([, m]) => m.trilha], ['Avulsos', ([, m]) => !m.trilha && !m.grupo], ['Para PJs · notas fiscais', ([, m]) => m.grupo === 'pj']]
     for (const [rotulo, filtro] of grupos) {
       const g = document.createElement('div'); g.className = 'grupo'
       g.innerHTML = `<div class="dica">${rotulo}</div>`
@@ -521,7 +543,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       for (const [id, m] of Object.entries(MODELOS).filter(filtro).sort((a, b) => (a[1].trilha || 0) - (b[1].trilha || 0))) {
         const b = document.createElement('button')
         b.type = 'button'; b.className = 'modelo'
-        b.innerHTML = m.trilha ? `<span class="tn">${m.trilha}</span>${esc(m.nome)}<span class="qd">${esc(m.quando)}</span>` : esc(m.nome)
+        b.innerHTML = m.trilha ? `<span class="tn">${m.trilha}</span>${esc(m.nome)}<span class="qd">${esc(m.quando)}</span>` : m.quando ? `${esc(m.nome)}<span class="qd">${esc(m.quando)}</span>` : esc(m.nome)
         b.setAttribute('aria-pressed', String(id === estado.modelo))
         b.addEventListener('click', () => aplicarModelo(id))
         linha.appendChild(b)
@@ -554,18 +576,28 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   }
   $('add-dest').addEventListener('click', () => { destaques.push(['', '']); renderDestaques() })
 
+  // {remetente}, {mes} e {prazo} viram o valor real na hora de montar o e-mail.
+  function subst(t) {
+    const hoje = new Date()
+    const mes = new Intl.DateTimeFormat('pt-BR', { month: 'long', timeZone: 'America/Sao_Paulo' }).format(hoje)
+    const mm = new Intl.DateTimeFormat('pt-BR', { month: '2-digit', timeZone: 'America/Sao_Paulo' }).format(hoje)
+    return String(t ?? '').replace(/\{remetente\}/g, $('f-remetente').value.trim() || 'o e-mail do RH')
+      .replace(/\{mes\}/g, mes).replace(/\{prazo\}/g, `15/${mm}`)
+  }
+  const ehPJ = () => MODELOS[estado.modelo] && MODELOS[estado.modelo].grupo === 'pj'
+
   // ───────── E-mail (HTML com estilos inline, em tabelas, para colar no Gmail) ─────────
   function inline(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#26202B">$1</strong>') }
 
   function htmlEmail(previa) {
-    const v = (k) => $('f-' + k).value.trim()
+    const v = (k) => subst($('f-' + k).value.trim())
     const F = "font-family:'Segoe UI',Helvetica,Arial,sans-serif"
     const remet = v('remetente')
-    const blocos = (t) => t.replace(/\{remetente\}/g, remet || 'o e-mail do RH').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+    const blocos = (t) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
       .map((p) => `<p style="margin:0 0 14px;${F};font-size:15px;line-height:1.6;color:#4A4350">${inline(p).replace(/\n/g, '<br>')}</p>`).join('')
     const paragrafos = blocos(v('corpo'))
     const fecho = blocos(v('fecho'))
-    const ds = destaques.filter((d) => d[0].trim() || d[1].trim())
+    const ds = destaques.filter((d) => d[0].trim() || d[1].trim()).map((d) => [subst(d[0]), subst(d[1])])
     const quadro = ds.length ? `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:6px 0 18px;background:#FBF6FB;border-radius:10px">
         ${ds.map((d, i) => `<tr>
@@ -599,7 +631,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       <p style="margin:0;${F};font-size:15px;line-height:1.5;color:#26202B">Um abraço,<br><strong>${esc(v('assinatura'))}</strong></p>
     </td></tr>
     <tr><td style="padding:16px 24px;background:#FAF7FA;border-top:1px solid #EFE8F0">
-      <p style="margin:0;${F};font-size:12px;line-height:1.5;color:#8A8190">Comunicado interno para colaboradores da Camino School.${remet ? ` Dúvidas? Responda este e-mail ou escreva para ${esc(remet)}.` : ''}</p>
+      <p style="margin:0;${F};font-size:12px;line-height:1.5;color:#8A8190">${ehPJ() ? 'Aviso para prestadores de serviço da Camino School.' : 'Comunicado interno para colaboradores da Camino School.'}${remet ? ` Dúvidas? Responda este e-mail ou escreva para ${esc(remet)}.` : ''}</p>
     </td></tr>
   </table>
 </td></tr></table>`
@@ -607,7 +639,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
 
   function renderEmail() {
     $('email').innerHTML = htmlEmail(true)
-    $('p-assunto').textContent = $('f-assunto').value || '(sem assunto)'
+    $('p-assunto').textContent = subst($('f-assunto').value) || '(sem assunto)'
     $('remetente-txt').textContent = $('f-remetente').value || '—'
   }
   campos.forEach((k) => $('f-' + k).addEventListener('input', renderEmail))
@@ -627,7 +659,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     else avisar('Copiado')
   }
 
-  $('copiar-assunto').addEventListener('click', () => copiarTexto($('f-assunto').value, $('copiar-assunto')))
+  $('copiar-assunto').addEventListener('click', () => copiarTexto(subst($('f-assunto').value), $('copiar-assunto')))
 
   $('copiar-email').addEventListener('click', async () => {
     const html = htmlEmail()
