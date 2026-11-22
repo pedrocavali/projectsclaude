@@ -7,9 +7,14 @@ e uma equipe de agentes em `.claude/agents/`. A sessão principal do Claude é s
 ```
 🏢 Prédio de Pessoas
 ├── 🚪 Sala Comunicados   pedrocavali/projectsclaude   comunicacao · desenvolvedor · auditor · arquivista
-├── 🚪 Sala CRM           pedrocavali/crm-rh-camino    12 especialistas (um por seção) + auditor + arquivista
+├── 🚪 Sala CRM           pedrocavali/crm-rh-camino    14 especialistas (um por seção) + auditor + arquivista
 └── 🚪 (próximas)         Drive, pastas do C:          ex.: agente "documentos-drive"
 ```
+
+## Ver o escritório
+
+`predio/escritorio.html` mostra a planta do prédio com uma mesa por agente e simula pedidos passando de mesa em mesa.
+Versão publicada: https://claude.ai/artifact/LEG4KnsPHBABz74EmURUAU
 
 ## Como os agentes "conversam"
 

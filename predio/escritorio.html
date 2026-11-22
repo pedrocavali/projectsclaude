@@ -1,0 +1,465 @@
+<title>Escritório de Pessoas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: planta baixa do andar (recepção + salas com mesas) à esquerda, mural da conversa à direita; empilha no celular. */
+:root {
+  --bg: #F7F5F2;
+  --floor: #FFFFFF;
+  --tile: #EFEBEF;
+  --ink: #26202B;
+  --ink-soft: #6C6472;
+  --line: #E3DDE5;
+  --laranja: #F7A600;
+  --magenta: #E6007E;
+  --roxo: #8E1F8F;
+  --sala-com: #B87A00;
+  --sala-crm: #8E1F8F;
+  --sala-drv: #C2006A;
+  --ok: #1D7A4F;
+  --ok-bg: #E3F3EA;
+  --bad: #B3261E;
+  --bad-bg: #FBE7E5;
+  --wait: #6C6472;
+  --work-bg: #FFF4DF;
+  --f-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151217; --floor: #1E1A21; --tile: #28222C; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #383040;
+  --sala-com: #F5B94A; --sala-crm: #D35BD4; --sala-drv: #FF5AAE;
+  --ok: #5FD19B; --ok-bg: #173A29; --bad: #FF8A80; --bad-bg: #44201D; --wait: #ADA4B3; --work-bg: #3A2C12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #151217; --floor: #1E1A21; --tile: #28222C; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #383040;
+  --sala-com: #F5B94A; --sala-crm: #D35BD4; --sala-drv: #FF5AAE;
+  --ok: #5FD19B; --ok-bg: #173A29; --bad: #FF8A80; --bad-bg: #44201D; --wait: #ADA4B3; --work-bg: #3A2C12; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45 }
+.faixa { height: 6px; background: linear-gradient(90deg, var(--laranja), var(--magenta), var(--roxo)) }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 22px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 18px }
+h1 { font-family: var(--f-display); font-weight: 900; font-size: 28px; margin: 0; letter-spacing: -.01em; text-wrap: balance }
+.sub { color: var(--ink-soft); margin: 4px 0 0; max-width: 70ch }
+.selo { font-size: 12px; font-weight: 600; color: var(--ink-soft); border: 1px dashed var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap }
+
+/* Barra de pedidos */
+.pedido { background: var(--floor); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; margin-bottom: 18px }
+.pedido-linha { display: flex; gap: 8px; flex-wrap: wrap }
+.pedido input { flex: 1 1 260px; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px }
+.pedido input:focus-visible, button:focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px }
+button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--floor); color: var(--ink); padding: 8px 12px }
+.btn-principal { background: var(--roxo); border-color: var(--roxo); color: #fff; font-weight: 600 }
+.btn-principal:disabled { opacity: .55; cursor: default }
+.exemplos { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+.exemplos span { font-size: 12px; color: var(--ink-soft); margin-right: 2px }
+.chip { font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: var(--bg) }
+.chip:hover { border-color: var(--magenta) }
+.controles { display: flex; gap: 6px; align-items: center; margin-left: auto; font-size: 12px; color: var(--ink-soft) }
+.controles button { padding: 5px 9px; font-size: 12px }
+.controles button[aria-pressed="true"] { border-color: var(--roxo); color: var(--roxo); font-weight: 600 }
+
+/* Andar */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start }
+@media (max-width: 1020px) { .main { grid-template-columns: minmax(0, 1fr) } }
+.andar { position: relative; background: var(--floor); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 14px; min-width: 0;
+  background-image: linear-gradient(var(--tile) 1px, transparent 1px), linear-gradient(90deg, var(--tile) 1px, transparent 1px);
+  background-size: 28px 28px; overflow-x: clip }
+.sala { position: relative; border: 2px solid var(--cor); border-radius: 12px; background: color-mix(in srgb, var(--floor) 88%, transparent); padding: 26px 12px 12px; min-width: 0 }
+.sala.fase2 { border-style: dashed; opacity: .78 }
+.placa { position: absolute; top: -11px; left: 14px; background: var(--cor); color: var(--floor); font-family: var(--f-display); font-weight: 800; font-size: 12.5px; padding: 2px 10px; border-radius: 6px; letter-spacing: .02em }
+.placa small { font-family: var(--f-mono); font-weight: 400; opacity: .85; margin-left: 6px; font-size: 11px }
+.recepcao { --cor: var(--magenta); display: flex; justify-content: center }
+.salas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px }
+.mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px }
+
+.mesa { position: relative; display: grid; justify-items: center; gap: 4px; text-align: center; padding: 10px 6px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--floor); transition: border-color .2s, box-shadow .2s, background .2s; min-width: 0 }
+.mesa .av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 900; font-size: 14px; color: #fff; background: var(--cor); position: relative }
+.mesa .nome { font-weight: 600; font-size: 12.5px; line-height: 1.2 }
+.mesa .id { font-family: var(--f-mono); font-size: 10px; color: var(--ink-soft); overflow-wrap: anywhere }
+.estado { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 8px; color: var(--wait); background: var(--bg) }
+.mesa[data-estado="trabalhando"] { border-color: var(--laranja); background: var(--work-bg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--laranja) 25%, transparent) }
+.mesa[data-estado="trabalhando"] .estado { color: var(--ink); background: color-mix(in srgb, var(--laranja) 35%, transparent) }
+.mesa[data-estado="aprovado"] { border-color: var(--ok) }
+.mesa[data-estado="aprovado"] .estado { color: var(--ok); background: var(--ok-bg) }
+.mesa[data-estado="reprovado"] { border-color: var(--bad) }
+.mesa[data-estado="reprovado"] .estado { color: var(--bad); background: var(--bad-bg) }
+.mesa[data-estado="feito"] .estado { color: var(--ok); background: var(--ok-bg) }
+.mesa[data-estado="trabalhando"] .av::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--laranja); animation: pulso 1.2s ease-out infinite }
+@keyframes pulso { from { transform: scale(.9); opacity: 1 } to { transform: scale(1.25); opacity: 0 } }
+.obra { position: absolute; top: -8px; right: 6px; z-index: 2; font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); background: repeating-linear-gradient(-45deg, var(--laranja) 0 6px, color-mix(in srgb, var(--laranja) 55%, var(--floor)) 6px 12px); padding: 1px 5px; border-radius: 4px }
+.mesa.coord { width: min(100%, 240px); padding: 12px }
+.mesa.coord .av { width: 48px; height: 48px; font-size: 16px; background: linear-gradient(135deg, var(--laranja), var(--magenta), var(--roxo)) }
+
+.balao { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); width: max-content; max-width: 220px; background: var(--ink); color: var(--floor); font-size: 11.5px; line-height: 1.35; padding: 6px 9px; border-radius: 8px; z-index: 5; pointer-events: none; text-align: left }
+.balao::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--ink) }
+
+.pacote { position: absolute; z-index: 6; width: 26px; height: 20px; border-radius: 4px; background: var(--floor); border: 2px solid var(--magenta); display: grid; place-items: center; pointer-events: none; box-shadow: 0 4px 10px rgb(0 0 0 / .18) }
+.pacote::before { content: ""; width: 12px; height: 8px; border-bottom: 2px solid var(--magenta); border-left: 2px solid transparent; border-right: 2px solid transparent; transform: translateY(-3px) }
+
+/* Mural */
+.mural { background: var(--floor); border: 1px solid var(--line); border-radius: 16px; display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 760px; min-width: 0; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+@media (max-width: 1020px) { .mural { position: static; max-height: 520px } }
+.mural h2 { font-family: var(--f-display); font-weight: 800; font-size: 16px; margin: 0; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; align-items: baseline }
+.mural h2 span { font-family: var(--f-body); font-weight: 500; font-size: 12px; color: var(--ink-soft) }
+.log { list-style: none; margin: 0; padding: 12px 16px 16px; overflow-y: auto; display: grid; gap: 10px; align-content: start }
+.log li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; animation: entra .25s ease-out }
+@keyframes entra { from { opacity: .2; transform: translateY(4px) } to { opacity: 1; transform: none } }
+.log .mini { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--f-display); font-weight: 900; font-size: 10.5px; background: var(--cor) }
+.log .quem { font-weight: 600; font-size: 12.5px }
+.log .quem small { font-family: var(--f-mono); font-weight: 400; color: var(--ink-soft); font-size: 10.5px; margin-left: 4px }
+.log .txt { font-size: 13px; color: var(--ink); overflow-wrap: anywhere }
+.log .txt code { font-family: var(--f-mono); font-size: 11.5px; background: var(--bg); padding: 0 4px; border-radius: 4px }
+.log .tag { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 4px; margin-right: 4px }
+.tag.ok { color: var(--ok); background: var(--ok-bg) } .tag.bad { color: var(--bad); background: var(--bad-bg) }
+.log li.voce .mini { background: var(--ink); color: var(--floor) }
+.vazio { color: var(--ink-soft); font-size: 13px; padding: 8px 0 }
+
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-soft); margin-top: 12px }
+.legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px }
+
+@media (prefers-reduced-motion: reduce) { .mesa .av::after, .log li { animation: none } .pacote { display: none } }
+</style>
+
+<div class="faixa"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Escritório de Pessoas</h1>
+      <p class="sub">Cada mesa é um agente do Claude. Escolha um pedido e veja a coordenadora distribuir o trabalho, os agentes passarem o recado de mesa em mesa e o auditor aprovar antes de o arquivista guardar.</p>
+    </div>
+    <span class="selo">Simulação visual · os agentes reais trabalham no Claude Code</span>
+  </header>
+
+  <form class="pedido" id="form">
+    <div class="pedido-linha">
+      <input id="campo" autocomplete="off" placeholder="Faça um pedido à sala, ex.: aviso de férias coletivas para os professores" aria-label="Pedido para a sala">
+      <button class="btn-principal" id="enviar" type="submit">Enviar à sala</button>
+    </div>
+    <div class="pedido-linha">
+      <div class="exemplos" id="exemplos"><span>Exemplos:</span></div>
+      <div class="controles">
+        Velocidade
+        <button type="button" data-vel="1" aria-pressed="true">1×</button>
+        <button type="button" data-vel="2" aria-pressed="false">2×</button>
+        <button type="button" id="limpar">Limpar</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="main">
+    <section class="andar" id="andar" aria-label="Planta do escritório">
+      <div class="sala recepcao"><span class="placa">Recepção</span><div id="m-hall" style="display:contents"></div></div>
+      <div class="salas">
+        <div class="sala" style="--cor: var(--sala-com)"><span class="placa">Sala Comunicados <small>projectsclaude</small></span><div class="mesas" id="m-com"></div></div>
+        <div class="sala" style="--cor: var(--sala-crm)"><span class="placa">Sala CRM <small>crm-rh-camino</small></span><div class="mesas" id="m-crm"></div></div>
+        <div class="sala fase2" style="--cor: var(--sala-drv)"><span class="placa">Sala Computador e Drive <small>fase 2</small></span><div class="mesas" id="m-drv"></div></div>
+      </div>
+    </section>
+
+    <aside class="mural" aria-live="polite">
+      <h2>Conversa da sala <span id="status">aguardando pedido</span></h2>
+      <ol class="log" id="log"><li class="vazio" style="display:block">Nenhum pedido ainda. Escolha um exemplo acima.</li></ol>
+    </aside>
+  </div>
+
+  <div class="legenda">
+    <span><i style="background:var(--laranja)"></i>trabalhando</span>
+    <span><i style="background:var(--ok)"></i>aprovado / entregue</span>
+    <span><i style="background:var(--bad)"></i>reprovado, volta para correção</span>
+    <span><i style="background:repeating-linear-gradient(-45deg,var(--laranja) 0 3px,transparent 3px 6px)"></i>em construção</span>
+    <span><i style="border:1px dashed var(--sala-drv)"></i>fase 2, no seu computador</span>
+  </div>
+</div>
+
+<script>
+const AG = [
+  { id: "coordenadora", nome: "Coordenadora", sigla: "CO", sala: "hall", papel: "Recebe o pedido e distribui" },
+  { id: "comunicacao", nome: "Comunicação", sigla: "CM", sala: "com" },
+  { id: "desenvolvedor", nome: "Desenvolvedor", sigla: "DV", sala: "com" },
+  { id: "auditor", nome: "Auditor", sigla: "AU", sala: "com" },
+  { id: "arquivista", nome: "Arquivista", sigla: "AR", sala: "com" },
+  { id: "crm-ninebox", nome: "Nine Box", sigla: "9B", sala: "crm" },
+  { id: "crm-portal-gestor", nome: "Portal do Gestor", sigla: "PG", sala: "crm" },
+  { id: "crm-colaboradores", nome: "Fichas", sigla: "FI", sala: "crm" },
+  { id: "crm-recrutamento", nome: "Recrutamento", sigla: "RE", sala: "crm" },
+  { id: "crm-processo-seletivo", nome: "Processo Seletivo", sigla: "PS", sala: "crm", obra: true },
+  { id: "crm-admissao-onboarding", nome: "Admissão", sigla: "AD", sala: "crm" },
+  { id: "crm-pjs-notas", nome: "PJs e NFs", sigla: "PJ", sala: "crm" },
+  { id: "crm-juridico", nome: "Jurídico", sigla: "JU", sala: "crm" },
+  { id: "crm-ferias-beneficios", nome: "Férias e Benefícios", sigla: "FB", sala: "crm" },
+  { id: "crm-folha-esocial", nome: "Folha e eSocial", sigla: "FE", sala: "crm", obra: true },
+  { id: "crm-budget-planning", nome: "Budget", sigla: "BU", sala: "crm" },
+  { id: "crm-indicadores", nome: "Indicadores", sigla: "IN", sala: "crm" },
+  { id: "crm-central-rh", nome: "Central RH", sigla: "CR", sala: "crm" },
+  { id: "crm-documentos", nome: "Documentos", sigla: "DO", sala: "crm" },
+  { id: "crm-banco-dados", nome: "Banco e Acesso", sigla: "BD", sala: "crm" },
+  { id: "crm-auditor", nome: "Auditor CRM", sigla: "AU", sala: "crm" },
+  { id: "crm-arquivista", nome: "Arquivista CRM", sigla: "AR", sala: "crm" },
+  { id: "documentos-drive", nome: "Drive e Pastas", sigla: "DR", sala: "drv", fase2: true },
+];
+const COR = { hall: "var(--magenta)", com: "var(--sala-com)", crm: "var(--sala-crm)", drv: "var(--sala-drv)" };
+const ESTADO_TXT = { livre: "livre", trabalhando: "trabalhando", aprovado: "aprovado", reprovado: "reprovado", feito: "entregue", esperando: "esperando" };
+const porId = Object.fromEntries(AG.map(a => [a.id, a]));
+
+// Monta as mesas
+for (const a of AG) {
+  const el = document.createElement("div");
+  el.className = "mesa" + (a.id === "coordenadora" ? " coord" : "");
+  el.id = "mesa-" + a.id;
+  el.dataset.estado = "livre";
+  el.style.setProperty("--cor", COR[a.sala]);
+  el.innerHTML = `${a.obra ? '<span class="obra">em obra</span>' : ""}
+    <div class="av">${a.sigla}</div>
+    <div class="nome">${a.nome}</div>
+    <div class="id">${a.papel || a.id}</div>
+    <span class="estado">${a.fase2 ? "fase 2" : "livre"}</span>`;
+  document.getElementById("m-" + a.sala).appendChild(el);
+}
+
+// Roteiros: cada passo é [de, para, fala, estado de quem fala] ou uma lista de passos em paralelo.
+const C = "coordenadora";
+const ROTEIROS = {
+  recesso: {
+    rotulo: "Aviso de recesso de fim de ano",
+    passos: [
+      [C, C, "Pedido de texto para colaboradores. Equipe: Comunicação → Auditor → Arquivista.", "trabalhando"],
+      [C, "comunicacao", "Escreve o aviso de recesso. Público: todos. Canal: e-mail e canal Pessoas.", "trabalhando"],
+      ["comunicacao", C, "Rascunho pronto: assunto <code>Recesso de fim de ano: o que muda</code>. Data de retorno ficou <code>[A CONFIRMAR]</code>.", "feito"],
+      [C, "auditor", "Revisa o aviso de recesso.", "trabalhando"],
+      ["auditor", C, "<span class='tag bad'>REPROVADO</span> Falta a data de retorno e o plantão do RH. Volta para a Comunicação.", "reprovado"],
+      [C, "comunicacao", "Inclua o retorno e o plantão. A pessoa confirmou: volta dia 5/1.", "trabalhando"],
+      ["comunicacao", C, "Corrigido, com retorno e contato do plantão em destaque.", "feito"],
+      [C, "auditor", "Segunda revisão.", "trabalhando"],
+      ["auditor", C, "<span class='tag ok'>APROVADO</span> Sem dados pessoais, tom e marca ok.", "aprovado"],
+      [C, "arquivista", "Guarda e registra.", "trabalhando"],
+      ["arquivista", C, "Salvo em <code>comunicados/aviso-recesso.html</code>, ata em <code>sala/atas/</code>, commit enviado.", "feito"],
+    ],
+  },
+  provas: {
+    rotulo: "Prova escrita e aula-teste para professor",
+    passos: [
+      [C, C, "Toca Processo Seletivo e Recrutamento. Banco de dados para as tabelas novas.", "trabalhando"],
+      [[C, "crm-processo-seletivo", "Desenhe as etapas: prova escrita, aula-teste com banca, pesos e nota mínima.", "trabalhando"],
+       [C, "crm-recrutamento", "Prepare o funil da vaga de professor para receber as notas.", "trabalhando"]],
+      ["crm-processo-seletivo", C, "Proposta: prova (peso 40), aula-teste (peso 60), mínimo 7. Preciso de tabelas para provas, gabaritos e notas, com gabarito protegido.", "esperando"],
+      [C, "crm-banco-dados", "O Processo Seletivo pede tabelas de provas, gabaritos e notas com RLS.", "trabalhando"],
+      ["crm-banco-dados", C, "Migração <code>sql/sprint-49-processo-seletivo.sql</code> com RLS: gabarito só no servidor.", "feito"],
+      [["crm-recrutamento", C, "Funil mostra nota por etapa e ranking da vaga.", "feito"],
+       [C, "crm-processo-seletivo", "Tabelas prontas, pode construir as telas.", "trabalhando"]],
+      ["crm-processo-seletivo", C, "Telas de prova, link do candidato e correção por rubrica prontas.", "feito"],
+      [C, "crm-auditor", "Revise a mudança inteira.", "trabalhando"],
+      ["crm-auditor", C, "<span class='tag ok'>APROVADO</span> Tipos e lint ok, RLS ok, gabarito não vaza para o candidato.", "aprovado"],
+      [C, "crm-arquivista", "Registra e envia.", "trabalhando"],
+      ["crm-arquivista", C, "Commit feito. Pendência: aplicar o SQL no Supabase.", "feito"],
+    ],
+  },
+  drive: {
+    rotulo: "Documentos do colaborador X no Drive",
+    passos: [
+      [C, C, "Envolve a ficha no CRM, o Drive (fase 2) e um aviso ao colaborador.", "trabalhando"],
+      [[C, "crm-colaboradores", "Quais documentos a ficha do colaborador X exige?", "trabalhando"],
+       [C, "documentos-drive", "Procure os documentos do colaborador X no Drive.", "trabalhando"]],
+      ["crm-colaboradores", C, "A ficha exige RG, CPF, ASO admissional e contrato assinado.", "feito"],
+      ["documentos-drive", C, "Encontrei RG, CPF e contrato. O ASO admissional não está no Drive.", "feito"],
+      [C, "crm-documentos", "Registre no CRM o que foi achado e marque o ASO como pendente.", "trabalhando"],
+      ["crm-documentos", C, "Links vinculados à ficha (com acesso restrito). ASO marcado como pendente.", "feito"],
+      [C, "comunicacao", "Escreva um e-mail curto pedindo o ASO ao colaborador X.", "trabalhando"],
+      ["comunicacao", C, "E-mail pronto, prazo <code>[A CONFIRMAR]</code>.", "feito"],
+      [C, "auditor", "Revisa o e-mail.", "trabalhando"],
+      ["auditor", C, "<span class='tag ok'>APROVADO</span> Não expõe dados de saúde no assunto.", "aprovado"],
+      [C, "crm-arquivista", "Registra a ata.", "trabalhando"],
+      ["crm-arquivista", C, "Ata salva. O e-mail fica como rascunho até você mandar enviar.", "feito"],
+    ],
+  },
+  esocial: {
+    rotulo: "Quais S-2200 vencem esta semana?",
+    passos: [
+      [C, C, "Pergunta de consulta, nada muda. Só a Folha e eSocial.", "trabalhando"],
+      [C, "crm-folha-esocial", "Liste os S-2200 com prazo nesta semana.", "trabalhando"],
+      ["crm-folha-esocial", C, "Cruzei as admissões com as tarefas da Central RH: 2 admissões começam na segunda e o S-2200 ainda não foi marcado como enviado (dados de exemplo).", "feito"],
+      [C, C, "Resposta entregue. Nada para auditar nem guardar.", "feito"],
+    ],
+  },
+  cogestor: {
+    rotulo: "Co-gestor vê observações do Nine Box",
+    passos: [
+      [C, C, "Toca Nine Box, Portal do Gestor e permissões no banco.", "trabalhando"],
+      [[C, "crm-ninebox", "Co-gestores devem ver as observações da equipe.", "trabalhando"],
+       [C, "crm-portal-gestor", "Mostre a aba de observações para co-gestores.", "trabalhando"]],
+      ["crm-ninebox", C, "Consulta ajustada em <code>lib/coGestores.ts</code>. O banco precisa liberar a leitura.", "esperando"],
+      ["crm-portal-gestor", C, "Aba aparece para co-gestor no menu do portal.", "feito"],
+      [C, "crm-banco-dados", "Ajuste a RLS de observações para co-gestores.", "trabalhando"],
+      ["crm-banco-dados", C, "Política nova em <code>sql/sprint-49-rls-observacoes-cogestor.sql</code>.", "feito"],
+      [C, "crm-auditor", "Revise.", "trabalhando"],
+      ["crm-auditor", C, "<span class='tag bad'>REPROVADO</span> A política libera observações de qualquer equipe. Falta filtrar pela equipe do co-gestor.", "reprovado"],
+      [C, "crm-banco-dados", "Corrija o filtro apontado pelo auditor.", "trabalhando"],
+      ["crm-banco-dados", C, "Filtro por equipe incluído.", "feito"],
+      [C, "crm-auditor", "Segunda revisão.", "trabalhando"],
+      ["crm-auditor", C, "<span class='tag ok'>APROVADO</span> Co-gestor só vê a própria equipe.", "aprovado"],
+      [C, "crm-arquivista", "Registra e envia.", "trabalhando"],
+      ["crm-arquivista", C, "Commit feito. Pendência: aplicar o SQL.", "feito"],
+    ],
+  },
+};
+
+// Pedido livre: escolhe a equipe por palavras-chave
+const ROTAS = [
+  [/nine ?box|avalia[çc][ãa]o de desempenho|pdi|feedback/i, "crm-ninebox"],
+  [/gestor|diretoria/i, "crm-portal-gestor"],
+  [/ficha|colaborador|organograma|anivers/i, "crm-colaboradores"],
+  [/vaga|candidat|recrut|funil/i, "crm-recrutamento"],
+  [/prova|aula[- ]teste|banca|sele[çc][ãa]o|seletivo/i, "crm-processo-seletivo"],
+  [/admiss|onboarding|contrato clt|experi[êe]ncia/i, "crm-admissao-onboarding"],
+  [/\bpj|nota fiscal|\bnf/i, "crm-pjs-notas"],
+  [/jur[íi]dic|processo trabalhista|rescis|den[úu]ncia|desligam|caso/i, "crm-juridico"],
+  [/f[ée]rias|benef[íi]cio|sa[úu]de|alimenta|ponto/i, "crm-ferias-beneficios"],
+  [/folha|esocial|e-social|s-2\d{3}/i, "crm-folha-esocial"],
+  [/budget|custo|headcount|planning|baia/i, "crm-budget-planning"],
+  [/indicador|turnover|relat[óo]rio|dashboard|quantos|n[úu]meros/i, "crm-indicadores"],
+  [/tarefa|agenda|solicita|central/i, "crm-central-rh"],
+  [/documento|arquivo|biblioteca/i, "crm-documentos"],
+  [/drive|computador|pasta/i, "documentos-drive"],
+  [/permiss|login|acesso|tabela|banco de dados|rls/i, "crm-banco-dados"],
+  [/tela|p[áa]gina|gerador|template|html/i, "desenvolvedor"],
+  [/aviso|comunicad|e-?mail|texto|post|canal|mensagem/i, "comunicacao"],
+];
+function roteiroLivre(texto) {
+  let equipe = [...new Set(ROTAS.filter(([re]) => re.test(texto)).map(([, id]) => id))].slice(0, 4);
+  if (!equipe.length) equipe = ["comunicacao"];
+  const temCrm = equipe.some(id => id.startsWith("crm-") || id === "documentos-drive");
+  const temCom = equipe.some(id => porId[id].sala === "com");
+  const auditor = temCrm ? "crm-auditor" : "auditor";
+  const arquivista = temCrm ? "crm-arquivista" : "arquivista";
+  const nomes = equipe.map(id => porId[id].nome).join(", ");
+  const passos = [[C, C, `Equipe para este pedido: ${nomes} → ${porId[auditor].nome} → ${porId[arquivista].nome}.`, "trabalhando"]];
+  passos.push(equipe.map(id => [C, id, `Sua parte em: “${texto}”.`, "trabalhando"]));
+  for (const id of equipe) passos.push([id, C, porId[id].fase2 ? "Fase 2: quando eu estiver no seu computador, faço esta busca." : "Minha parte está pronta.", "feito"]);
+  passos.push([C, auditor, "Revise o que a equipe entregou.", "trabalhando"]);
+  passos.push([auditor, C, "<span class='tag ok'>APROVADO</span>", "aprovado"]);
+  if (temCom && temCrm) passos.push([C, "arquivista", "Guarde a parte de Comunicados.", "trabalhando"], ["arquivista", C, "Salvo.", "feito"]);
+  passos.push([C, arquivista, "Registra e envia.", "trabalhando"]);
+  passos.push([arquivista, C, "Ata e commit feitos.", "feito"]);
+  return { rotulo: texto, passos };
+}
+
+// Motor da simulação
+const log = document.getElementById("log");
+const statusEl = document.getElementById("status");
+const andar = document.getElementById("andar");
+const btn = document.getElementById("enviar");
+const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let vel = 1, rodada = 0;
+const espera = ms => new Promise(r => setTimeout(r, ms / vel));
+
+function setEstado(id, est) {
+  const el = document.getElementById("mesa-" + id);
+  el.dataset.estado = est;
+  el.querySelector(".estado").textContent = ESTADO_TXT[est] || est;
+}
+function balao(id, html, ms) {
+  const mesa = document.getElementById("mesa-" + id);
+  mesa.querySelector(".balao")?.remove();
+  const b = document.createElement("div");
+  b.className = "balao";
+  b.innerHTML = html.replace(/<span class='tag[^>]*>|<\/span>/g, "");
+  mesa.appendChild(b);
+  setTimeout(() => b.remove(), ms / vel);
+}
+function escreve(id, html) {
+  log.querySelector(".vazio")?.remove();
+  const a = porId[id];
+  const li = document.createElement("li");
+  li.innerHTML = `<div class="mini" style="--cor:${COR[a.sala]}">${a.sigla}</div>
+    <div><div class="quem">${a.nome}<small>${a.id}</small></div><div class="txt">${html}</div></div>`;
+  log.appendChild(li);
+  log.scrollTop = log.scrollHeight;
+}
+async function voa(de, para) {
+  if (de === para || reduz) return;
+  const r0 = andar.getBoundingClientRect();
+  const a = document.getElementById("mesa-" + de).querySelector(".av").getBoundingClientRect();
+  const b = document.getElementById("mesa-" + para).querySelector(".av").getBoundingClientRect();
+  const p = document.createElement("div");
+  p.className = "pacote";
+  andar.appendChild(p);
+  const x0 = a.left - r0.left + a.width / 2 - 13, y0 = a.top - r0.top + a.height / 2 - 10;
+  const x1 = b.left - r0.left + b.width / 2 - 13, y1 = b.top - r0.top + b.height / 2 - 10;
+  const anim = p.animate([{ transform: `translate(${x0}px,${y0}px)` }, { transform: `translate(${x1}px,${y1}px)` }],
+    { duration: 700 / vel, easing: "cubic-bezier(.45,.05,.35,1)", fill: "forwards" });
+  await anim.finished.catch(() => {});
+  p.remove();
+}
+async function passo([de, para, fala, est], minha) {
+  if (minha !== rodada) return;
+  balao(de, fala, 2600);
+  escreve(de, fala);
+  if (de !== C) setEstado(de, est);
+  else if (para === C) setEstado(C, est);
+  await voa(de, para);
+  if (minha !== rodada) return;
+  if (para !== C) setEstado(para, "trabalhando");
+  else if (de !== C) setEstado(C, "trabalhando");
+}
+function zera() {
+  for (const a of AG) {
+    const el = document.getElementById("mesa-" + a.id);
+    el.dataset.estado = "livre";
+    el.querySelector(".estado").textContent = a.fase2 ? "fase 2" : "livre";
+    el.querySelector(".balao")?.remove();
+  }
+  andar.querySelectorAll(".pacote").forEach(p => p.remove());
+}
+async function roda(roteiro) {
+  const minha = ++rodada;
+  zera();
+  log.innerHTML = "";
+  const li = document.createElement("li");
+  li.className = "voce";
+  li.innerHTML = `<div class="mini">VC</div><div><div class="quem">Você</div><div class="txt">${roteiro.rotulo.replace(/</g, "&lt;")}</div></div>`;
+  log.appendChild(li);
+  statusEl.textContent = "em andamento";
+  btn.disabled = true;
+  await espera(500);
+  for (const p of roteiro.passos) {
+    if (minha !== rodada) return;
+    if (Array.isArray(p[0])) await Promise.all(p.map(q => passo(q, minha)));
+    else await passo(p, minha);
+    await espera(1300);
+  }
+  if (minha !== rodada) return;
+  setEstado(C, "feito");
+  escreve(C, "Pedido concluído. Resultado, participantes e pendências entregues.");
+  statusEl.textContent = "concluído";
+  btn.disabled = false;
+}
+
+// Controles
+const ex = document.getElementById("exemplos");
+for (const [k, r] of Object.entries(ROTEIROS)) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = r.rotulo;
+  b.addEventListener("click", () => roda(r));
+  ex.appendChild(b);
+}
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const t = document.getElementById("campo").value.trim();
+  if (t) roda(roteiroLivre(t));
+});
+document.querySelectorAll("[data-vel]").forEach(b => b.addEventListener("click", () => {
+  vel = +b.dataset.vel;
+  document.querySelectorAll("[data-vel]").forEach(o => o.setAttribute("aria-pressed", o === b));
+}));
+document.getElementById("limpar").addEventListener("click", () => {
+  rodada++; zera(); btn.disabled = false; statusEl.textContent = "aguardando pedido";
+  log.innerHTML = '<li class="vazio" style="display:block">Nenhum pedido ainda. Escolha um exemplo acima.</li>';
+});
+
+// Abre já mostrando a sala trabalhando
+roda(ROTEIROS.provas);
+</script>
