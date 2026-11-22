@@ -2,464 +2,831 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: planta baixa do andar (recepção + salas com mesas) à esquerda, mural da conversa à direita; empilha no celular. */
+/* Layout: escritório isométrico à noite ocupando a tela (canvas), mural da conversa à direita; no celular o mural vira gaveta. Visual escuro de propósito. */
 :root {
-  --bg: #F7F5F2;
-  --floor: #FFFFFF;
-  --tile: #EFEBEF;
-  --ink: #26202B;
-  --ink-soft: #6C6472;
-  --line: #E3DDE5;
+  --bg: #141118;
+  --panel: #1D1922;
+  --panel-2: #252029;
+  --ink: #F1ECF3;
+  --ink-soft: #A79EAE;
+  --line: #352E3B;
   --laranja: #F7A600;
   --magenta: #E6007E;
-  --roxo: #8E1F8F;
-  --sala-com: #B87A00;
-  --sala-crm: #8E1F8F;
-  --sala-drv: #C2006A;
-  --ok: #1D7A4F;
-  --ok-bg: #E3F3EA;
-  --bad: #B3261E;
-  --bad-bg: #FBE7E5;
-  --wait: #6C6472;
-  --work-bg: #FFF4DF;
+  --roxo: #A23BA3;
+  --rosa: #FF4F9A;
+  --verde: #5FD19B;
+  --vermelho: #FF6B6B;
+  --ambar: #F5B94A;
   --f-display: "Nunito", "Segoe UI", system-ui, sans-serif;
   --f-body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #151217; --floor: #1E1A21; --tile: #28222C; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #383040;
-  --sala-com: #F5B94A; --sala-crm: #D35BD4; --sala-drv: #FF5AAE;
-  --ok: #5FD19B; --ok-bg: #173A29; --bad: #FF8A80; --bad-bg: #44201D; --wait: #ADA4B3; --work-bg: #3A2C12; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #151217; --floor: #1E1A21; --tile: #28222C; --ink: #F1ECF3; --ink-soft: #ADA4B3; --line: #383040;
-  --sala-com: #F5B94A; --sala-crm: #D35BD4; --sala-drv: #FF5AAE;
-  --ok: #5FD19B; --ok-bg: #173A29; --bad: #FF8A80; --bad-bg: #44201D; --wait: #ADA4B3; --work-bg: #3A2C12; color-scheme: dark }
-
 * { box-sizing: border-box }
-body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45 }
-.faixa { height: 6px; background: linear-gradient(90deg, var(--laranja), var(--magenta), var(--roxo)) }
-.wrap { max-width: 1320px; margin: 0 auto; padding-block: 22px 48px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
-header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 18px }
-h1 { font-family: var(--f-display); font-weight: 900; font-size: 28px; margin: 0; letter-spacing: -.01em; text-wrap: balance }
-.sub { color: var(--ink-soft); margin: 4px 0 0; max-width: 70ch }
-.selo { font-size: 12px; font-weight: 600; color: var(--ink-soft); border: 1px dashed var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap }
+[hidden] { display: none !important }
+html, body { height: 100% }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; overflow: hidden }
+.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 340px }
+@media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr) } }
 
-/* Barra de pedidos */
-.pedido { background: var(--floor); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; margin-bottom: 18px }
-.pedido-linha { display: flex; gap: 8px; flex-wrap: wrap }
-.pedido input { flex: 1 1 260px; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px }
-.pedido input:focus-visible, button:focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px }
-button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--floor); color: var(--ink); padding: 8px 12px }
-.btn-principal { background: var(--roxo); border-color: var(--roxo); color: #fff; font-weight: 600 }
-.btn-principal:disabled { opacity: .55; cursor: default }
-.exemplos { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
-.exemplos span { font-size: 12px; color: var(--ink-soft); margin-right: 2px }
-.chip { font-size: 12.5px; padding: 5px 10px; border-radius: 999px; background: var(--bg) }
-.chip:hover { border-color: var(--magenta) }
-.controles { display: flex; gap: 6px; align-items: center; margin-left: auto; font-size: 12px; color: var(--ink-soft) }
-.controles button { padding: 5px 9px; font-size: 12px }
-.controles button[aria-pressed="true"] { border-color: var(--roxo); color: var(--roxo); font-weight: 600 }
+.palco { position: relative; min-width: 0; overflow: hidden; touch-action: none }
+canvas { display: block; width: 100%; height: 100%; cursor: grab }
+canvas:active { cursor: grabbing }
 
-/* Andar */
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start }
-@media (max-width: 1020px) { .main { grid-template-columns: minmax(0, 1fr) } }
-.andar { position: relative; background: var(--floor); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 14px; min-width: 0;
-  background-image: linear-gradient(var(--tile) 1px, transparent 1px), linear-gradient(90deg, var(--tile) 1px, transparent 1px);
-  background-size: 28px 28px; overflow-x: clip }
-.sala { position: relative; border: 2px solid var(--cor); border-radius: 12px; background: color-mix(in srgb, var(--floor) 88%, transparent); padding: 26px 12px 12px; min-width: 0 }
-.sala.fase2 { border-style: dashed; opacity: .78 }
-.placa { position: absolute; top: -11px; left: 14px; background: var(--cor); color: var(--floor); font-family: var(--f-display); font-weight: 800; font-size: 12.5px; padding: 2px 10px; border-radius: 6px; letter-spacing: .02em }
-.placa small { font-family: var(--f-mono); font-weight: 400; opacity: .85; margin-left: 6px; font-size: 11px }
-.recepcao { --cor: var(--magenta); display: flex; justify-content: center }
-.salas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px }
-.mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px }
+.topo { position: absolute; top: 0; left: 0; right: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; pointer-events: none;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)) }
+.topo > * { pointer-events: auto }
+.marca { display: flex; align-items: center; gap: 10px; background: rgb(20 17 24 / .78); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px }
+.marca h1 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: 17px; letter-spacing: -.01em }
+.faixinha { width: 6px; align-self: stretch; border-radius: 3px; background: linear-gradient(var(--laranja), var(--magenta), var(--roxo)) }
+.vivo { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); font-weight: 500 }
+.vivo i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-soft) }
+.vivo[data-s="on"] i { background: var(--verde); animation: vivo 1.8s infinite }
+.vivo[data-s="on"] { color: var(--verde) }
+.vivo[data-s="demo"] i { background: var(--ambar) }
+@keyframes vivo { 0% { box-shadow: 0 0 0 0 rgb(95 209 155 / .6) } 100% { box-shadow: 0 0 0 8px rgb(95 209 155 / 0) } }
+.acoes { display: flex; gap: 6px; flex-wrap: wrap; background: rgb(20 17 24 / .78); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 12px; padding: 6px }
+button { font: inherit; font-size: 13px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 11px; cursor: pointer }
+button:hover { border-color: #57495F }
+button:focus-visible { outline: 2px solid var(--rosa); outline-offset: 2px }
+button[aria-pressed="true"] { border-color: var(--rosa); color: #fff }
+.so-celular { display: none }
+@media (max-width: 900px) { .so-celular { display: inline-block } }
 
-.mesa { position: relative; display: grid; justify-items: center; gap: 4px; text-align: center; padding: 10px 6px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--floor); transition: border-color .2s, box-shadow .2s, background .2s; min-width: 0 }
-.mesa .av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 900; font-size: 14px; color: #fff; background: var(--cor); position: relative }
-.mesa .nome { font-weight: 600; font-size: 12.5px; line-height: 1.2 }
-.mesa .id { font-family: var(--f-mono); font-size: 10px; color: var(--ink-soft); overflow-wrap: anywhere }
-.estado { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 8px; color: var(--wait); background: var(--bg) }
-.mesa[data-estado="trabalhando"] { border-color: var(--laranja); background: var(--work-bg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--laranja) 25%, transparent) }
-.mesa[data-estado="trabalhando"] .estado { color: var(--ink); background: color-mix(in srgb, var(--laranja) 35%, transparent) }
-.mesa[data-estado="aprovado"] { border-color: var(--ok) }
-.mesa[data-estado="aprovado"] .estado { color: var(--ok); background: var(--ok-bg) }
-.mesa[data-estado="reprovado"] { border-color: var(--bad) }
-.mesa[data-estado="reprovado"] .estado { color: var(--bad); background: var(--bad-bg) }
-.mesa[data-estado="feito"] .estado { color: var(--ok); background: var(--ok-bg) }
-.mesa[data-estado="trabalhando"] .av::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--laranja); animation: pulso 1.2s ease-out infinite }
-@keyframes pulso { from { transform: scale(.9); opacity: 1 } to { transform: scale(1.25); opacity: 0 } }
-.obra { position: absolute; top: -8px; right: 6px; z-index: 2; font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); background: repeating-linear-gradient(-45deg, var(--laranja) 0 6px, color-mix(in srgb, var(--laranja) 55%, var(--floor)) 6px 12px); padding: 1px 5px; border-radius: 4px }
-.mesa.coord { width: min(100%, 240px); padding: 12px }
-.mesa.coord .av { width: 48px; height: 48px; font-size: 16px; background: linear-gradient(135deg, var(--laranja), var(--magenta), var(--roxo)) }
+.menu { position: absolute; z-index: 20; top: 64px; right: max(16px, env(safe-area-inset-right, 0px)); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 6px; display: grid; gap: 2px; width: min(320px, calc(100% - 32px)); box-shadow: 0 12px 40px rgb(0 0 0 / .45) }
+.menu button { text-align: left; background: transparent; border-color: transparent }
+.menu button:hover { background: var(--panel-2) }
+.menu p { margin: 4px 10px 6px; font-size: 12px; color: var(--ink-soft); line-height: 1.4 }
 
-.balao { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); width: max-content; max-width: 220px; background: var(--ink); color: var(--floor); font-size: 11.5px; line-height: 1.35; padding: 6px 9px; border-radius: 8px; z-index: 5; pointer-events: none; text-align: left }
-.balao::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--ink) }
+.faixa-pedido { position: absolute; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); max-width: calc(100% - 32px); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 13px; display: flex; gap: 8px; align-items: center; box-shadow: 0 8px 30px rgb(0 0 0 / .4) }
+.faixa-pedido b { font-family: var(--f-display); font-weight: 800; color: var(--rosa) }
+.faixa-pedido span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0 }
 
-.pacote { position: absolute; z-index: 6; width: 26px; height: 20px; border-radius: 4px; background: var(--floor); border: 2px solid var(--magenta); display: grid; place-items: center; pointer-events: none; box-shadow: 0 4px 10px rgb(0 0 0 / .18) }
-.pacote::before { content: ""; width: 12px; height: 8px; border-bottom: 2px solid var(--magenta); border-left: 2px solid transparent; border-right: 2px solid transparent; transform: translateY(-3px) }
+.cartao { position: absolute; z-index: 15; width: 250px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 12px 40px rgb(0 0 0 / .5); display: grid; gap: 6px }
+.cartao h3 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: 16px }
+.cartao code { font-size: 11.5px; color: var(--ink-soft); overflow-wrap: anywhere }
+.cartao p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.4 }
+.cartao .fala { color: var(--ink); background: var(--panel-2); border-radius: 8px; padding: 6px 8px }
 
 /* Mural */
-.mural { background: var(--floor); border: 1px solid var(--line); border-radius: 16px; display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 760px; min-width: 0; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
-@media (max-width: 1020px) { .mural { position: static; max-height: 520px } }
-.mural h2 { font-family: var(--f-display); font-weight: 800; font-size: 16px; margin: 0; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; align-items: baseline }
-.mural h2 span { font-family: var(--f-body); font-weight: 500; font-size: 12px; color: var(--ink-soft) }
-.log { list-style: none; margin: 0; padding: 12px 16px 16px; overflow-y: auto; display: grid; gap: 10px; align-content: start }
-.log li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; animation: entra .25s ease-out }
-@keyframes entra { from { opacity: .2; transform: translateY(4px) } to { opacity: 1; transform: none } }
-.log .mini { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--f-display); font-weight: 900; font-size: 10.5px; background: var(--cor) }
-.log .quem { font-weight: 600; font-size: 12.5px }
-.log .quem small { font-family: var(--f-mono); font-weight: 400; color: var(--ink-soft); font-size: 10.5px; margin-left: 4px }
-.log .txt { font-size: 13px; color: var(--ink); overflow-wrap: anywhere }
-.log .txt code { font-family: var(--f-mono); font-size: 11.5px; background: var(--bg); padding: 0 4px; border-radius: 4px }
-.log .tag { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 4px; margin-right: 4px }
-.tag.ok { color: var(--ok); background: var(--ok-bg) } .tag.bad { color: var(--bad); background: var(--bad-bg) }
-.log li.voce .mini { background: var(--ink); color: var(--floor) }
-.vazio { color: var(--ink-soft); font-size: 13px; padding: 8px 0 }
+.mural { background: var(--panel); border-left: 1px solid var(--line); display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; height: 100% }
+@media (max-width: 900px) {
+  .mural { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; height: min(62%, 520px); border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; transform: translateY(105%); transition: transform .25s ease; padding-bottom: env(safe-area-inset-bottom, 0px) }
+  .mural.aberto { transform: none }
+}
+.mural header { padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid var(--line) }
+.mural h2 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: 16px }
+.resumo { padding: 10px 16px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px }
+.resumo div { background: var(--panel-2); border-radius: 10px; padding: 8px 10px }
+.resumo b { display: block; font-family: var(--f-display); font-weight: 900; font-size: 20px; font-variant-numeric: tabular-nums }
+.resumo span { font-size: 11.5px; color: var(--ink-soft) }
+.log { list-style: none; margin: 0; padding: 12px 16px 20px; overflow-y: auto; display: grid; gap: 12px; align-content: start }
+.log li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 9px; animation: entra .3s ease-out }
+@keyframes entra { from { opacity: .2; transform: translateY(6px) } to { opacity: 1; transform: none } }
+.log .mini { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 900; font-size: 11px; color: #fff }
+.log .quem { font-weight: 600; font-size: 12.5px; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap }
+.log .quem small { color: var(--ink-soft); font-weight: 400; font-size: 11px }
+.log .txt { font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; color: #DCD5E0 }
+.tag { font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: .02em }
+.tag.ok { background: #173A29; color: var(--verde) } .tag.bad { background: #44201D; color: var(--vermelho) } .tag.voce { background: #4A1830; color: var(--rosa) }
+.log li.vazio { display: block; color: var(--ink-soft); font-size: 13px; line-height: 1.5; animation: none }
+.vazio code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 12px }
 
-.legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-soft); margin-top: 12px }
-.legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px }
-
-@media (prefers-reduced-motion: reduce) { .mesa .av::after, .log li { animation: none } .pacote { display: none } }
+@media (prefers-reduced-motion: reduce) { .log li, .vivo i { animation: none !important } }
 </style>
 
-<div class="faixa"></div>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>Escritório de Pessoas</h1>
-      <p class="sub">Cada mesa é um agente do Claude. Escolha um pedido e veja a coordenadora distribuir o trabalho, os agentes passarem o recado de mesa em mesa e o auditor aprovar antes de o arquivista guardar.</p>
-    </div>
-    <span class="selo">Simulação visual · os agentes reais trabalham no Claude Code</span>
-  </header>
-
-  <form class="pedido" id="form">
-    <div class="pedido-linha">
-      <input id="campo" autocomplete="off" placeholder="Faça um pedido à sala, ex.: aviso de férias coletivas para os professores" aria-label="Pedido para a sala">
-      <button class="btn-principal" id="enviar" type="submit">Enviar à sala</button>
-    </div>
-    <div class="pedido-linha">
-      <div class="exemplos" id="exemplos"><span>Exemplos:</span></div>
-      <div class="controles">
-        Velocidade
+<div class="app">
+  <main class="palco" id="palco">
+    <canvas id="cena" aria-label="Escritório isométrico com os agentes de Pessoas trabalhando"></canvas>
+    <div class="topo">
+      <div class="marca">
+        <span class="faixinha"></span>
+        <div>
+          <h1>Escritório de Pessoas</h1>
+          <span class="vivo" id="vivo" data-s="espera"><i></i><span id="vivo-txt">conectando…</span></span>
+        </div>
+      </div>
+      <div class="acoes">
+        <button type="button" id="b-demo" aria-expanded="false">Ver demonstração</button>
         <button type="button" data-vel="1" aria-pressed="true">1×</button>
         <button type="button" data-vel="2" aria-pressed="false">2×</button>
-        <button type="button" id="limpar">Limpar</button>
+        <button type="button" id="b-zoom-menos" aria-label="Afastar">−</button>
+        <button type="button" id="b-zoom-mais" aria-label="Aproximar">+</button>
+        <button type="button" id="b-ajustar">Ajustar</button>
+        <button type="button" id="b-mural" class="so-celular">Conversa</button>
       </div>
     </div>
-  </form>
+    <div class="menu" id="menu" hidden>
+      <p>Pedidos de exemplo. Se um pedido real chegar, ele toma a frente.</p>
+    </div>
+    <div class="faixa-pedido" id="faixa" hidden><b>Pedido</b><span id="faixa-txt"></span></div>
+    <div class="cartao" id="cartao" hidden></div>
+  </main>
 
-  <div class="main">
-    <section class="andar" id="andar" aria-label="Planta do escritório">
-      <div class="sala recepcao"><span class="placa">Recepção</span><div id="m-hall" style="display:contents"></div></div>
-      <div class="salas">
-        <div class="sala" style="--cor: var(--sala-com)"><span class="placa">Sala Comunicados <small>projectsclaude</small></span><div class="mesas" id="m-com"></div></div>
-        <div class="sala" style="--cor: var(--sala-crm)"><span class="placa">Sala CRM <small>crm-rh-camino</small></span><div class="mesas" id="m-crm"></div></div>
-        <div class="sala fase2" style="--cor: var(--sala-drv)"><span class="placa">Sala Computador e Drive <small>fase 2</small></span><div class="mesas" id="m-drv"></div></div>
-      </div>
-    </section>
-
-    <aside class="mural" aria-live="polite">
-      <h2>Conversa da sala <span id="status">aguardando pedido</span></h2>
-      <ol class="log" id="log"><li class="vazio" style="display:block">Nenhum pedido ainda. Escolha um exemplo acima.</li></ol>
-    </aside>
-  </div>
-
-  <div class="legenda">
-    <span><i style="background:var(--laranja)"></i>trabalhando</span>
-    <span><i style="background:var(--ok)"></i>aprovado / entregue</span>
-    <span><i style="background:var(--bad)"></i>reprovado, volta para correção</span>
-    <span><i style="background:repeating-linear-gradient(-45deg,var(--laranja) 0 3px,transparent 3px 6px)"></i>em construção</span>
-    <span><i style="border:1px dashed var(--sala-drv)"></i>fase 2, no seu computador</span>
-  </div>
+  <aside class="mural" id="mural" aria-live="polite">
+    <header>
+      <h2>Conversa da sala</h2>
+      <button type="button" id="b-fechar-mural" class="so-celular">Fechar</button>
+    </header>
+    <div class="resumo">
+      <div><b id="n-trab">0</b><span>trabalhando</span></div>
+      <div><b id="n-entregues">0</b><span>entregas hoje</span></div>
+      <div><b id="n-pedidos">0</b><span>pedidos hoje</span></div>
+    </div>
+    <ol class="log" id="log">
+      <li class="vazio">Sala tranquila. Quando você fizer um pedido no Claude Code, a coordenadora registra cada passo aqui e a equipe se mexe no escritório. Para ver como fica, toque em <code>Ver demonstração</code>.</li>
+    </ol>
+  </aside>
 </div>
 
 <script>
-const AG = [
-  { id: "coordenadora", nome: "Coordenadora", sigla: "CO", sala: "hall", papel: "Recebe o pedido e distribui" },
-  { id: "comunicacao", nome: "Comunicação", sigla: "CM", sala: "com" },
-  { id: "desenvolvedor", nome: "Desenvolvedor", sigla: "DV", sala: "com" },
-  { id: "auditor", nome: "Auditor", sigla: "AU", sala: "com" },
-  { id: "arquivista", nome: "Arquivista", sigla: "AR", sala: "com" },
-  { id: "crm-ninebox", nome: "Nine Box", sigla: "9B", sala: "crm" },
-  { id: "crm-portal-gestor", nome: "Portal do Gestor", sigla: "PG", sala: "crm" },
-  { id: "crm-colaboradores", nome: "Fichas", sigla: "FI", sala: "crm" },
-  { id: "crm-recrutamento", nome: "Recrutamento", sigla: "RE", sala: "crm" },
-  { id: "crm-processo-seletivo", nome: "Processo Seletivo", sigla: "PS", sala: "crm", obra: true },
-  { id: "crm-admissao-onboarding", nome: "Admissão", sigla: "AD", sala: "crm" },
-  { id: "crm-pjs-notas", nome: "PJs e NFs", sigla: "PJ", sala: "crm" },
-  { id: "crm-juridico", nome: "Jurídico", sigla: "JU", sala: "crm" },
-  { id: "crm-ferias-beneficios", nome: "Férias e Benefícios", sigla: "FB", sala: "crm" },
-  { id: "crm-folha-esocial", nome: "Folha e eSocial", sigla: "FE", sala: "crm", obra: true },
-  { id: "crm-budget-planning", nome: "Budget", sigla: "BU", sala: "crm" },
-  { id: "crm-indicadores", nome: "Indicadores", sigla: "IN", sala: "crm" },
-  { id: "crm-central-rh", nome: "Central RH", sigla: "CR", sala: "crm" },
-  { id: "crm-documentos", nome: "Documentos", sigla: "DO", sala: "crm" },
-  { id: "crm-banco-dados", nome: "Banco e Acesso", sigla: "BD", sala: "crm" },
-  { id: "crm-auditor", nome: "Auditor CRM", sigla: "AU", sala: "crm" },
-  { id: "crm-arquivista", nome: "Arquivista CRM", sigla: "AR", sala: "crm" },
-  { id: "documentos-drive", nome: "Drive e Pastas", sigla: "DR", sala: "drv", fase2: true },
+"use strict";
+// ───────────── Equipe e planta ─────────────
+// Grade: colunas k a cada 4 lajotas (eixo x), fileiras r a cada 4 (eixo y). A mesa ocupa o começo da célula;
+// os corredores x = 4k+3.55 e y = 4r+2.75 ficam livres, e é por eles que todo mundo anda.
+const SALAS = { hall: "Recepção", com: "Comunicados", crm: "CRM", drv: "Drive (fase 2)" };
+const EQUIPE = [
+  ["coordenadora", "Coordenadora", "hall", 0, 0, "Recebe o pedido, monta a equipe e faz a ponte entre os agentes."],
+  ["comunicacao", "Comunicação", "com", 0, 1, "Escreve comunicados, e-mails e avisos na voz do time Pessoas e do Cami."],
+  ["desenvolvedor", "Desenvolvedor", "com", 1, 1, "Constrói os geradores HTML e os templates de e-mail."],
+  ["auditor", "Auditor", "com", 0, 2, "Revisa LGPD, prazos, marca e português antes de qualquer entrega."],
+  ["arquivista", "Arquivista", "com", 1, 2, "Organiza, registra a ata e faz o commit."],
+  ["crm-ninebox", "Nine Box", "crm", 2, 0, "Ciclos de avaliação, avaliadores, observações, resultado e PDI."],
+  ["crm-portal-gestor", "Portal do Gestor", "crm", 3, 0, "Login e telas do gestor, equipe, solicitações e diretoria."],
+  ["crm-colaboradores", "Fichas", "crm", 4, 0, "Ficha do colaborador, histórico, organograma e aniversariantes."],
+  ["crm-recrutamento", "Recrutamento", "crm", 5, 0, "Vagas, candidaturas, funil e requisição de vaga."],
+  ["crm-admissao-onboarding", "Admissão", "crm", 2, 1, "Admissões, contratos, onboarding e trilha."],
+  ["crm-pjs-notas", "PJs e NFs", "crm", 3, 1, "Cadastro de PJs, aditivos e notas fiscais."],
+  ["crm-juridico", "Jurídico", "crm", 4, 1, "Processos, Lexio, casos, canal de denúncia e rescisão."],
+  ["crm-processo-seletivo", "Processo Seletivo", "crm", 5, 1, "Provas do candidato por PIN, correção, perfil e regra dos 6 meses. Em construção.", true],
+  ["crm-ferias-beneficios", "Férias e Benefícios", "crm", 2, 2, "Férias, benefícios, saúde e alimentação, ponto."],
+  ["crm-budget-planning", "Budget", "crm", 3, 2, "Budget de pessoas, cenários, headcount e People Planning."],
+  ["crm-indicadores", "Indicadores", "crm", 4, 2, "Dashboard, turnover, relatórios e assistente de dados."],
+  ["crm-folha-esocial", "Folha e eSocial", "crm", 5, 2, "Motor da folha, conferência com a BHUB, holerites e eventos do eSocial. Em construção.", true],
+  ["crm-central-rh", "Central RH", "crm", 2, 3, "Tarefas, agenda, solicitações e aprovações."],
+  ["crm-documentos", "Documentos", "crm", 3, 3, "Biblioteca documental, Storage e Google Drive."],
+  ["crm-banco-dados", "Banco e Acesso", "crm", 4, 3, "Supabase, migrações SQL, RLS e permissões."],
+  ["crm-auditor", "Auditor CRM", "crm", 5, 3, "Revisão obrigatória: build, segurança, LGPD e impacto entre seções."],
+  ["crm-arquivista", "Arquivista CRM", "crm", 2, 4, "Ata, commit e push do CRM."],
+  ["documentos-drive", "Drive e Pastas", "drv", 0, 4, "Fase 2: vai procurar documentos no Drive e nas pastas do seu computador."],
 ];
-const COR = { hall: "var(--magenta)", com: "var(--sala-com)", crm: "var(--sala-crm)", drv: "var(--sala-drv)" };
-const ESTADO_TXT = { livre: "livre", trabalhando: "trabalhando", aprovado: "aprovado", reprovado: "reprovado", feito: "entregue", esperando: "esperando" };
-const porId = Object.fromEntries(AG.map(a => [a.id, a]));
+const CEL = 3.5;
+const ARQUIVO = { k: 3, r: 4 }, ENTREGAS = { k: 1, r: 0 }, COPA = { x: 2.3, y: 12.6 };
+const ZONAS = [
+  { x: 0, y: 0, w: 7, d: 3.5, cor: "#3A1A33", rotulo: "RECEPÇÃO", tam: 0.62 },
+  { x: 0, y: 3.5, w: 7, d: 7, cor: "#3A2C16", rotulo: "COMUNICADOS", tam: 0.62 },
+  { x: 0, y: 10.5, w: 7, d: 3.5, cor: "#1F2E28", rotulo: "COPA", tam: 0.62 },
+  { x: 0, y: 14, w: 7, d: 3.5, cor: "#331527", rotulo: "DRIVE", tam: 0.62, tracejado: true },
+  { x: 7, y: 0, w: 14, d: 17.5, cor: "#2C1F3D", rotulo: "SALA CRM", tam: 1.1 },
+];
+const CAMISAS = ["#E8623A", "#F2B632", "#3FA58E", "#4D8FD6", "#8E5BD6", "#D6559A", "#5C7A8A", "#2F9E5B", "#C9483B", "#E0A458", "#6A7BD9", "#C77DD1"];
+const PELES = ["#F2C9A0", "#E0AC80", "#C68B5E", "#9A6542", "#6E4A33"];
+const CABELOS = ["#2B1D14", "#4A2E1C", "#7A4A26", "#D9A441", "#141414", "#8C8C8C", "#B5502A", "#3B2A4A"];
+const COR_SALA = { hall: "#E6007E", com: "#B87A00", crm: "#8E1F8F", drv: "#C2006A" };
 
-// Monta as mesas
-for (const a of AG) {
-  const el = document.createElement("div");
-  el.className = "mesa" + (a.id === "coordenadora" ? " coord" : "");
-  el.id = "mesa-" + a.id;
-  el.dataset.estado = "livre";
-  el.style.setProperty("--cor", COR[a.sala]);
-  el.innerHTML = `${a.obra ? '<span class="obra">em obra</span>' : ""}
-    <div class="av">${a.sigla}</div>
-    <div class="nome">${a.nome}</div>
-    <div class="id">${a.papel || a.id}</div>
-    <span class="estado">${a.fase2 ? "fase 2" : "livre"}</span>`;
-  document.getElementById("m-" + a.sala).appendChild(el);
+const TW = 32, TH = 16, ZU = 30;
+const tela = (x, y, z = 0) => [(x - y) * TW, (x + y) * TH - z * ZU];
+const cadeira = (k, r) => ({ x: CEL * k + 1.5, y: CEL * r + 1.75 });
+const visita = (k, r) => ({ x: CEL * k + 2.95, y: CEL * r + 1.45 });
+const laneY = r => CEL * r + 2.6, aisleX = k => CEL * k + 3.2;
+
+const agentes = {};
+EQUIPE.forEach(([id, nome, sala, k, r, desc, obra], i) => {
+  const c = cadeira(k, r);
+  agentes[id] = {
+    id, nome, sala, k, r, desc, obra: !!obra, fase2: sala === "drv",
+    casa: c, x: c.x, y: c.y, sentado: true, rota: [], vel: 4.2, fila: Promise.resolve(), dirX: 0, dirY: 1,
+    camisa: id === "coordenadora" ? "#E6007E" : CAMISAS[(i * 5) % CAMISAS.length],
+    pele: PELES[(i * 3) % PELES.length], cabelo: CABELOS[(i * 7) % CABELOS.length], estilo: i % 3,
+    estado: "livre", estadoAte: 0, fala: null, papel: false, passo: Math.random() * 10, fase: Math.random() * 6, ultimaFala: "",
+    iniciais: nome.replace(/ e /g, " ").split(/\s+/).map(p => p[0]).join("").slice(0, 2).toUpperCase(),
+  };
+});
+const VOCE = { id: "voce", nome: "Você", iniciais: "VC" };
+
+// ───────────── Cenário ─────────────
+const objetos = [];
+let entregas = 0;
+function poli(ctx, pts, cor) { ctx.beginPath(); pts.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); ctx.closePath(); ctx.fillStyle = cor; ctx.fill(); }
+function caixa(ctx, x, y, z, w, d, h, topo, ladoY, ladoX) {
+  poli(ctx, [tela(x, y + d, z), tela(x + w, y + d, z), tela(x + w, y + d, z + h), tela(x, y + d, z + h)], ladoY);
+  poli(ctx, [tela(x + w, y, z), tela(x + w, y + d, z), tela(x + w, y + d, z + h), tela(x + w, y, z + h)], ladoX);
+  poli(ctx, [tela(x, y, z + h), tela(x + w, y, z + h), tela(x + w, y + d, z + h), tela(x, y + d, z + h)], topo);
+}
+function mesa(k, r, dono) {
+  const x0 = CEL * k, y0 = CEL * r, a = agentes[dono];
+  objetos.push({ prof: x0 + 1.5 + y0 + 0.8, desenha(ctx, t) {
+    caixa(ctx, x0 + 0.3, y0 + 0.3, 0, 2.4, 1.0, 0.75, "#6B5442", "#4E3C2F", "#3E3026");
+    caixa(ctx, x0 + 1.05, y0 + 0.42, 0.75, 0.9, 0.12, 0.62, "#2B2F3A", "#2B2F3A", "#1E2129");
+    const ligado = a.estado === "trabalhando" || a.estado === "esperando" || (a.id === "coordenadora" && a.estado !== "livre");
+    const q = [tela(x0 + 1.1, y0 + 0.545, 0.8), tela(x0 + 1.9, y0 + 0.545, 0.8), tela(x0 + 1.9, y0 + 0.545, 1.32), tela(x0 + 1.1, y0 + 0.545, 1.32)];
+    ctx.save();
+    poli(ctx, q, a.fase2 ? "#2A2F3D" : ligado ? "#9CC4FF" : "#4E6489");
+    ctx.clip();
+    ctx.strokeStyle = ligado ? "#2E5FB8" : "#3B4E70"; ctx.lineWidth = 1.6;
+    for (let i = 0; i < 4; i++) {
+      const larg = ligado ? 0.2 + 0.45 * Math.abs(Math.sin(t / 380 + i * 1.7 + k + r)) : 0.3 + 0.1 * i;
+      const [l1x, l1y] = tela(x0 + 1.18, y0 + 0.545, 1.22 - i * 0.11), [l2x, l2y] = tela(x0 + 1.18 + larg, y0 + 0.545, 1.22 - i * 0.11);
+      ctx.beginPath(); ctx.moveTo(l1x, l1y); ctx.lineTo(l2x, l2y); ctx.stroke();
+    }
+    ctx.restore();
+    caixa(ctx, x0 + 1.1, y0 + 0.85, 0.75, 0.8, 0.25, 0.04, "#C9CDD6", "#9DA2AD", "#8A8F99");
+    caixa(ctx, x0 + 2.25, y0 + 0.5, 0.75, 0.18, 0.18, 0.2, "#EDE6DA", "#CFC6B8", "#B9B0A2");
+    if (a.obra) {
+      caixa(ctx, x0 + 2.75, y0 + 0.2, 0, 0.12, 0.12, 0.95, "#555", "#444", "#333");
+      const [px, py] = tela(x0 + 2.81, y0 + 0.26, 1.2);
+      ctx.fillStyle = "#F7A600"; ctx.beginPath(); ctx.moveTo(px, py - 15); ctx.lineTo(px + 13, py + 8); ctx.lineTo(px - 13, py + 8); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#141118"; ctx.font = "900 13px Nunito, sans-serif"; ctx.textAlign = "center"; ctx.fillText("!", px, py + 6);
+    }
+  } });
+  objetos.push({ prof: x0 + 1.5 + y0 + 1.6, desenha(ctx) {
+    caixa(ctx, x0 + 1.15, y0 + 1.5, 0.28, 0.7, 0.55, 0.1, "#2E2A33", "#24212A", "#1C1A21");
+    caixa(ctx, x0 + 1.45, y0 + 1.7, 0, 0.1, 0.1, 0.28, "#555", "#444", "#333");
+  } });
+}
+function planta(x, y, s = 1) {
+  objetos.push({ prof: x + y + 0.3, desenha(ctx) {
+    caixa(ctx, x - 0.25 * s, y - 0.25 * s, 0, 0.5 * s, 0.5 * s, 0.4 * s, "#8A6A52", "#6E523F", "#5A4333");
+    const [cx, cy] = tela(x, y, 0.4 * s);
+    ctx.fillStyle = "#2F7A4C"; ctx.beginPath(); ctx.arc(cx, cy - 16 * s, 15 * s, 0, 7); ctx.fill();
+    ctx.fillStyle = "#3E9A5F"; ctx.beginPath(); ctx.arc(cx - 6 * s, cy - 24 * s, 10 * s, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 7 * s, cy - 28 * s, 9 * s, 0, 7); ctx.fill();
+  } });
+}
+function rotulo3d(ctx, txt, x, y, z) {
+  const [tx, ty] = tela(x, y, z);
+  ctx.font = "800 12px Nunito, sans-serif"; ctx.textAlign = "center";
+  const w = ctx.measureText(txt).width + 14;
+  ctx.fillStyle = "rgba(20,17,24,0.8)"; rr(ctx, tx - w / 2, ty - 13, w, 18, 6); ctx.fill();
+  ctx.fillStyle = "#F1ECF3"; ctx.fillText(txt, tx, ty);
+}
+EQUIPE.forEach(([id, , , k, r]) => mesa(k, r, id));
+objetos.push({ prof: CEL * ENTREGAS.k + 1.5 + 0.8, desenha(ctx) {
+  const x0 = CEL * ENTREGAS.k;
+  caixa(ctx, x0 + 0.3, 0.3, 0, 2.4, 1.2, 0.75, "#7A3A66", "#5C2A4D", "#4A223E");
+  for (let i = 0; i < Math.min(entregas, 15); i++) {
+    caixa(ctx, x0 + 0.5 + (i % 3) * 0.68, 0.5, 0.75 + Math.floor(i / 3) * 0.06, 0.5, 0.7, 0.05, "#F5F1EA", "#D8D2C8", "#C4BDB2");
+  }
+  rotulo3d(ctx, "ENTREGAS", x0 + 1.5, 0.9, 1.7);
+} });
+objetos.push({ prof: CEL * ARQUIVO.k + CEL * ARQUIVO.r + 1.6, desenha(ctx) {
+  const x0 = CEL * ARQUIVO.k, y0 = CEL * ARQUIVO.r;
+  for (let i = 0; i < 3; i++) caixa(ctx, x0 + 0.3 + i * 0.8, y0 + 0.3, 0, 0.75, 0.9, 1.7, "#8C93A3", "#6D7383", "#5A606E");
+  ctx.strokeStyle = "#4A4F5B"; ctx.lineWidth = 1.5;
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+    const [a1, b1] = tela(x0 + 0.42 + i * 0.8, y0 + 1.2, 0.35 + j * 0.5), [a2, b2] = tela(x0 + 0.93 + i * 0.8, y0 + 1.2, 0.35 + j * 0.5);
+    ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke();
+  }
+  rotulo3d(ctx, "ARQUIVO", x0 + 1.5, y0 + 0.8, 2.3);
+} });
+// mesa de reunião
+objetos.push({ prof: 16.5 + 15.6, desenha(ctx) {
+  caixa(ctx, 14.6, 14.6, 0, 4, 1.8, 0.7, "#5A4A6A", "#43374F", "#382E42");
+  for (const [cx, cy] of [[15.2, 14.2], [16.6, 14.2], [18, 14.2]]) caixa(ctx, cx, cy, 0, 0.5, 0.35, 0.45, "#2E2A33", "#24212A", "#1C1A21");
+  rotulo3d(ctx, "REUNIÃO", 16.6, 15.5, 1.5);
+} });
+objetos.push({ prof: 0.9 + 11, desenha(ctx) {
+  caixa(ctx, 0.3, 10.8, 0, 0.9, 0.8, 1.6, "#3A3A44", "#2B2B33", "#222229");
+  caixa(ctx, 0.45, 11.45, 0.6, 0.5, 0.18, 0.4, "#E6007E", "#B30063", "#90004F");
+  caixa(ctx, 1.5, 10.8, 0, 2.4, 0.8, 0.9, "#4E5A52", "#3B453F", "#2F3833");
+  rotulo3d(ctx, "CAFÉ", 0.75, 11.2, 2.1);
+} });
+objetos.push({ prof: 5 + 12.6, desenha(ctx) { caixa(ctx, 4.4, 11.4, 0, 1.3, 1.0, 0.7, "#6B5442", "#4E3C2F", "#3E3026"); } });
+objetos.push({ prof: 5.3 + 15.6, desenha(ctx) {
+  caixa(ctx, 3.9, 14.75, 0, 2.6, 0.3, 0.95, "#6A4880", "#50365E", "#432D4F");
+  caixa(ctx, 3.9, 15.05, 0, 2.6, 1.0, 0.45, "#5B3B6B", "#46304F", "#3A2742");
+} });
+[[6.2, 9.8], [0.6, 3.2], [20.4, 0.6], [20.4, 17], [13.6, 17, 1.2], [20.2, 14.4, 1.3], [6.1, 17.1]].forEach(p => planta(...p));
+
+const LARG = 21, PROF = 17.5, PAREDE = 3.2;
+function desenhaChao(ctx) {
+  poli(ctx, [tela(0, 0, 0), tela(LARG, 0, 0), tela(LARG, 0, PAREDE), tela(0, 0, PAREDE)], "#221C29");
+  poli(ctx, [tela(0, 0, 0), tela(0, PROF, 0), tela(0, PROF, PAREDE), tela(0, 0, PAREDE)], "#1A1520");
+  const estrela = (pt) => { ctx.fillRect(pt[0], pt[1], 2, 2); };
+  [1, 4.2, 8.2, 17.2].forEach(x => {
+    poli(ctx, [tela(x, 0, 1.2), tela(x + 2.6, 0, 1.2), tela(x + 2.6, 0, 2.8), tela(x, 0, 2.8)], "#2A2950");
+    poli(ctx, [tela(x + 0.12, 0, 1.3), tela(x + 2.48, 0, 1.3), tela(x + 2.48, 0, 2.7), tela(x + 0.12, 0, 2.7)], "#151A3A");
+    ctx.fillStyle = "#E8E6FF";
+    for (let i = 0; i < 5; i++) estrela(tela(x + 0.3 + ((i * 0.53 + x) % 2.0), 0, 1.45 + ((i * 0.37 + x * 0.11) % 1.1)));
+  });
+  [4.2, 8.4, 13.2].forEach(y => {
+    poli(ctx, [tela(0, y, 1.2), tela(0, y + 2.6, 1.2), tela(0, y + 2.6, 2.8), tela(0, y, 2.8)], "#24234A");
+    poli(ctx, [tela(0, y + 0.12, 1.3), tela(0, y + 2.48, 1.3), tela(0, y + 2.48, 2.7), tela(0, y + 0.12, 2.7)], "#121733");
+    ctx.fillStyle = "#E8E6FF";
+    for (let i = 0; i < 4; i++) estrela(tela(0, y + 0.3 + ((i * 0.61 + y) % 2), 1.5 + ((i * 0.29 + y * 0.13) % 1)));
+  });
+  poli(ctx, [tela(11.5, 0, 1.0), tela(16.5, 0, 1.0), tela(16.5, 0, 2.85), tela(11.5, 0, 2.85)], "#E9E4DA");
+  ["#E6007E", "#F7A600", "#5FD19B", "#4D8FD6", "#A23BA3"].forEach((c, i) => {
+    const w = 1.2 + ((i * 1.7) % 3.2);
+    poli(ctx, [tela(12, 0, 2.3 - i * 0.24), tela(12 + w, 0, 2.3 - i * 0.24), tela(12 + w, 0, 2.15 - i * 0.24), tela(12, 0, 2.15 - i * 0.24)], c);
+  });
+  textoParede(ctx, "PEDIDOS DA SEMANA", 12, 2.72, "#3A3340");
+  poli(ctx, [tela(0, 0), tela(LARG, 0), tela(LARG, PROF), tela(0, PROF)], "#1E1924");
+  for (const z of ZONAS) {
+    poli(ctx, [tela(z.x + 0.08, z.y + 0.08), tela(z.x + z.w - 0.08, z.y + 0.08), tela(z.x + z.w - 0.08, z.y + z.d - 0.08), tela(z.x + 0.08, z.y + z.d - 0.08)], z.cor);
+    if (z.tracejado) {
+      ctx.save(); ctx.setLineDash([8, 6]); ctx.strokeStyle = "#FF4F9A"; ctx.lineWidth = 2;
+      ctx.beginPath(); [tela(z.x + 0.3, z.y + 0.3), tela(z.x + z.w - 0.3, z.y + 0.3), tela(z.x + z.w - 0.3, z.y + z.d - 0.3), tela(z.x + 0.3, z.y + z.d - 0.3)].forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b));
+      ctx.closePath(); ctx.stroke(); ctx.restore();
+    }
+  }
+  ctx.strokeStyle = "rgba(255,255,255,0.035)"; ctx.lineWidth = 1;
+  for (let x = 0; x <= LARG; x += 1.75) { const [a, b] = tela(x, 0), [c, d] = tela(x, PROF); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); }
+  for (let y = 0; y <= PROF; y += 1.75) { const [a, b] = tela(0, y), [c, d] = tela(LARG, y); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); }
+  for (const z of ZONAS) if (z.rotulo) textoChao(ctx, z.rotulo, z.x + 0.5, z.y + z.d - 0.45, z.tam, "rgba(255,255,255,0.12)");
+  textoChao(ctx, "FASE 2", 2.6, 17.05, 0.45, "rgba(255,79,154,0.6)");
+}
+function textoChao(ctx, txt, x, y, tam, cor) {
+  const [sx, sy] = tela(x, y);
+  ctx.save(); ctx.translate(sx, sy); ctx.transform(TW / 40, TH / 40, -TW / 40, TH / 40, 0, 0);
+  ctx.font = `900 ${Math.round(40 * tam)}px Nunito, sans-serif`; ctx.fillStyle = cor; ctx.textAlign = "left";
+  ctx.fillText(txt.split("").join(" "), 0, 0); ctx.restore();
+}
+function textoParede(ctx, txt, x, z, cor) {
+  const [sx, sy] = tela(x, 0, z);
+  ctx.save(); ctx.translate(sx, sy); ctx.transform(TW / 40, TH / 40, 0, ZU / 40, 0, 0);
+  ctx.font = "900 11px Nunito, sans-serif"; ctx.fillStyle = cor; ctx.textAlign = "left"; ctx.fillText(txt, 0, 0); ctx.restore();
 }
 
-// Roteiros: cada passo é [de, para, fala, estado de quem fala] ou uma lista de passos em paralelo.
-const C = "coordenadora";
-const ROTEIROS = {
-  recesso: {
-    rotulo: "Aviso de recesso de fim de ano",
-    passos: [
-      [C, C, "Pedido de texto para colaboradores. Equipe: Comunicação → Auditor → Arquivista.", "trabalhando"],
-      [C, "comunicacao", "Escreve o aviso de recesso. Público: todos. Canal: e-mail e canal Pessoas.", "trabalhando"],
-      ["comunicacao", C, "Rascunho pronto: assunto <code>Recesso de fim de ano: o que muda</code>. Data de retorno ficou <code>[A CONFIRMAR]</code>.", "feito"],
-      [C, "auditor", "Revisa o aviso de recesso.", "trabalhando"],
-      ["auditor", C, "<span class='tag bad'>REPROVADO</span> Falta a data de retorno e o plantão do RH. Volta para a Comunicação.", "reprovado"],
-      [C, "comunicacao", "Inclua o retorno e o plantão. A pessoa confirmou: volta dia 5/1.", "trabalhando"],
-      ["comunicacao", C, "Corrigido, com retorno e contato do plantão em destaque.", "feito"],
-      [C, "auditor", "Segunda revisão.", "trabalhando"],
-      ["auditor", C, "<span class='tag ok'>APROVADO</span> Sem dados pessoais, tom e marca ok.", "aprovado"],
-      [C, "arquivista", "Guarda e registra.", "trabalhando"],
-      ["arquivista", C, "Salvo em <code>comunicados/aviso-recesso.html</code>, ata em <code>sala/atas/</code>, commit enviado.", "feito"],
-    ],
-  },
-  provas: {
-    rotulo: "Prova escrita e aula-teste para professor",
-    passos: [
-      [C, C, "Toca Processo Seletivo e Recrutamento. Banco de dados para as tabelas novas.", "trabalhando"],
-      [[C, "crm-processo-seletivo", "Desenhe as etapas: prova escrita, aula-teste com banca, pesos e nota mínima.", "trabalhando"],
-       [C, "crm-recrutamento", "Prepare o funil da vaga de professor para receber as notas.", "trabalhando"]],
-      ["crm-processo-seletivo", C, "Proposta: prova (peso 40), aula-teste (peso 60), mínimo 7. Preciso de tabelas para provas, gabaritos e notas, com gabarito protegido.", "esperando"],
-      [C, "crm-banco-dados", "O Processo Seletivo pede tabelas de provas, gabaritos e notas com RLS.", "trabalhando"],
-      ["crm-banco-dados", C, "Migração <code>sql/sprint-49-processo-seletivo.sql</code> com RLS: gabarito só no servidor.", "feito"],
-      [["crm-recrutamento", C, "Funil mostra nota por etapa e ranking da vaga.", "feito"],
-       [C, "crm-processo-seletivo", "Tabelas prontas, pode construir as telas.", "trabalhando"]],
-      ["crm-processo-seletivo", C, "Telas de prova, link do candidato e correção por rubrica prontas.", "feito"],
-      [C, "crm-auditor", "Revise a mudança inteira.", "trabalhando"],
-      ["crm-auditor", C, "<span class='tag ok'>APROVADO</span> Tipos e lint ok, RLS ok, gabarito não vaza para o candidato.", "aprovado"],
-      [C, "crm-arquivista", "Registra e envia.", "trabalhando"],
-      ["crm-arquivista", C, "Commit feito. Pendência: aplicar o SQL no Supabase.", "feito"],
-    ],
-  },
-  drive: {
-    rotulo: "Documentos do colaborador X no Drive",
-    passos: [
-      [C, C, "Envolve a ficha no CRM, o Drive (fase 2) e um aviso ao colaborador.", "trabalhando"],
-      [[C, "crm-colaboradores", "Quais documentos a ficha do colaborador X exige?", "trabalhando"],
-       [C, "documentos-drive", "Procure os documentos do colaborador X no Drive.", "trabalhando"]],
-      ["crm-colaboradores", C, "A ficha exige RG, CPF, ASO admissional e contrato assinado.", "feito"],
-      ["documentos-drive", C, "Encontrei RG, CPF e contrato. O ASO admissional não está no Drive.", "feito"],
-      [C, "crm-documentos", "Registre no CRM o que foi achado e marque o ASO como pendente.", "trabalhando"],
-      ["crm-documentos", C, "Links vinculados à ficha (com acesso restrito). ASO marcado como pendente.", "feito"],
-      [C, "comunicacao", "Escreva um e-mail curto pedindo o ASO ao colaborador X.", "trabalhando"],
-      ["comunicacao", C, "E-mail pronto, prazo <code>[A CONFIRMAR]</code>.", "feito"],
-      [C, "auditor", "Revisa o e-mail.", "trabalhando"],
-      ["auditor", C, "<span class='tag ok'>APROVADO</span> Não expõe dados de saúde no assunto.", "aprovado"],
-      [C, "crm-arquivista", "Registra a ata.", "trabalhando"],
-      ["crm-arquivista", C, "Ata salva. O e-mail fica como rascunho até você mandar enviar.", "feito"],
-    ],
-  },
-  esocial: {
-    rotulo: "Quais S-2200 vencem esta semana?",
-    passos: [
-      [C, C, "Pergunta de consulta, nada muda. Só a Folha e eSocial.", "trabalhando"],
-      [C, "crm-folha-esocial", "Liste os S-2200 com prazo nesta semana.", "trabalhando"],
-      ["crm-folha-esocial", C, "Cruzei as admissões com as tarefas da Central RH: 2 admissões começam na segunda e o S-2200 ainda não foi marcado como enviado (dados de exemplo).", "feito"],
-      [C, C, "Resposta entregue. Nada para auditar nem guardar.", "feito"],
-    ],
-  },
-  cogestor: {
-    rotulo: "Co-gestor vê observações do Nine Box",
-    passos: [
-      [C, C, "Toca Nine Box, Portal do Gestor e permissões no banco.", "trabalhando"],
-      [[C, "crm-ninebox", "Co-gestores devem ver as observações da equipe.", "trabalhando"],
-       [C, "crm-portal-gestor", "Mostre a aba de observações para co-gestores.", "trabalhando"]],
-      ["crm-ninebox", C, "Consulta ajustada em <code>lib/coGestores.ts</code>. O banco precisa liberar a leitura.", "esperando"],
-      ["crm-portal-gestor", C, "Aba aparece para co-gestor no menu do portal.", "feito"],
-      [C, "crm-banco-dados", "Ajuste a RLS de observações para co-gestores.", "trabalhando"],
-      ["crm-banco-dados", C, "Política nova em <code>sql/sprint-49-rls-observacoes-cogestor.sql</code>.", "feito"],
-      [C, "crm-auditor", "Revise.", "trabalhando"],
-      ["crm-auditor", C, "<span class='tag bad'>REPROVADO</span> A política libera observações de qualquer equipe. Falta filtrar pela equipe do co-gestor.", "reprovado"],
-      [C, "crm-banco-dados", "Corrija o filtro apontado pelo auditor.", "trabalhando"],
-      ["crm-banco-dados", C, "Filtro por equipe incluído.", "feito"],
-      [C, "crm-auditor", "Segunda revisão.", "trabalhando"],
-      ["crm-auditor", C, "<span class='tag ok'>APROVADO</span> Co-gestor só vê a própria equipe.", "aprovado"],
-      [C, "crm-arquivista", "Registra e envia.", "trabalhando"],
-      ["crm-arquivista", C, "Commit feito. Pendência: aplicar o SQL.", "feito"],
-    ],
-  },
+// ───────────── Bonequinhos ─────────────
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function escurece(hex, f) { const n = parseInt(hex.slice(1), 16); const c = s => Math.round(((n >> s) & 255) * f); return `rgb(${c(16)},${c(8)},${c(0)})`; }
+function desenhaBoneco(ctx, a, t) {
+  const [sx, sy] = tela(a.x, a.y);
+  const andando = a.rota.length > 0;
+  const balanco = andando ? Math.sin(a.passo * 9) : 0;
+  const frente = andando ? (a.dirY > 0.3 || a.dirX > 0.3) : !a.sentado;
+  ctx.save(); ctx.translate(sx, sy);
+  if (a.fase2) ctx.globalAlpha = 0.6;
+  ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.beginPath(); ctx.ellipse(0, 0, 12, 5, 0, 0, 7); ctx.fill();
+  const base = a.sentado ? -12 : 0;
+  if (!a.sentado) {
+    ctx.fillStyle = "#2A2633";
+    rr(ctx, -6, -15 - Math.max(0, balanco) * 3, 5, 15, 2); ctx.fill();
+    rr(ctx, 1, -15 - Math.max(0, -balanco) * 3, 5, 15, 2); ctx.fill();
+  }
+  const digita = a.sentado && (a.estado === "trabalhando" || (a.id === "coordenadora" && a.estado !== "livre"));
+  const respira = Math.sin(t / 700 + a.fase) * 0.8;
+  ctx.fillStyle = a.camisa; rr(ctx, -11, base - 34 + respira, 22, 22, 7); ctx.fill();
+  if (a.sentado) {
+    ctx.fillStyle = a.pele;
+    const bob = digita ? Math.sin(t / 90 + a.fase) * 2 : 0;
+    ctx.beginPath(); ctx.arc(-11, base - 20 + bob, 3.6, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(11, base - 20 - bob, 3.6, 0, 7); ctx.fill();
+  } else {
+    ctx.fillStyle = escurece(a.camisa, 0.82);
+    rr(ctx, -15, base - 32 + balanco * 2, 5, 15, 2.5); ctx.fill();
+    rr(ctx, 10, base - 32 - balanco * 2, 5, 15, 2.5); ctx.fill();
+    if (a.papel) {
+      ctx.save(); ctx.translate(15, base - 22); ctx.rotate(-0.3);
+      ctx.fillStyle = "#F5F1EA"; ctx.fillRect(-2, -8, 11, 14);
+      ctx.fillStyle = "#B9B0A2"; ctx.fillRect(0, -5, 7, 1.5); ctx.fillRect(0, -1, 7, 1.5); ctx.restore();
+    }
+  }
+  const hy = base - 43 + respira;
+  ctx.fillStyle = a.pele; ctx.beginPath(); ctx.arc(0, hy, 9, 0, 7); ctx.fill();
+  ctx.fillStyle = a.cabelo;
+  if (frente) {
+    ctx.beginPath(); ctx.arc(0, hy - 1, 9.4, Math.PI * 1.02, Math.PI * 1.98); ctx.fill();
+    if (a.estilo === 1) { rr(ctx, -10, hy - 4, 4, 13, 2); ctx.fill(); rr(ctx, 6, hy - 4, 4, 13, 2); ctx.fill(); }
+    if (a.estilo === 2) { ctx.beginPath(); ctx.arc(0, hy - 11, 4.5, 0, 7); ctx.fill(); }
+    ctx.fillStyle = "#1B1420"; ctx.beginPath(); ctx.arc(-3.2, hy + 1, 1.3, 0, 7); ctx.arc(3.2, hy + 1, 1.3, 0, 7); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.arc(0, hy - 0.5, 9.4, Math.PI * 0.85, Math.PI * 2.15); ctx.fill();
+    if (a.estilo === 1) { rr(ctx, -9, hy, 18, 10, 4); ctx.fill(); }
+    if (a.estilo === 2) { ctx.beginPath(); ctx.arc(0, hy - 10, 4.5, 0, 7); ctx.fill(); }
+  }
+  if (a.id === "coordenadora") { ctx.strokeStyle = "#E9E4F0"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, hy - 1, 10.5, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  ctx.restore();
+}
+const ESTADOS = {
+  livre: { ponto: "#8A8090" }, trabalhando: { ponto: "#5FD19B" },
+  esperando: { ponto: "#F5B94A", txt: "esperando", cor: "#9A6C17" },
+  entregue: { ponto: "#5FD19B", txt: "entregue", cor: "#2C8A5E" },
+  aprovado: { ponto: "#5FD19B", txt: "aprovado", cor: "#2C8A5E" },
+  reprovado: { ponto: "#FF6B6B", txt: "reprovado", cor: "#C2413F" },
+  voce: { ponto: "#FF4F9A", txt: "precisa de você", cor: "#E0307F" },
 };
-
-// Pedido livre: escolhe a equipe por palavras-chave
-const ROTAS = [
-  [/nine ?box|avalia[çc][ãa]o de desempenho|pdi|feedback/i, "crm-ninebox"],
-  [/gestor|diretoria/i, "crm-portal-gestor"],
-  [/ficha|colaborador|organograma|anivers/i, "crm-colaboradores"],
-  [/vaga|candidat|recrut|funil/i, "crm-recrutamento"],
-  [/prova|aula[- ]teste|banca|sele[çc][ãa]o|seletivo/i, "crm-processo-seletivo"],
-  [/admiss|onboarding|contrato clt|experi[êe]ncia/i, "crm-admissao-onboarding"],
-  [/\bpj|nota fiscal|\bnf/i, "crm-pjs-notas"],
-  [/jur[íi]dic|processo trabalhista|rescis|den[úu]ncia|desligam|caso/i, "crm-juridico"],
-  [/f[ée]rias|benef[íi]cio|sa[úu]de|alimenta|ponto/i, "crm-ferias-beneficios"],
-  [/folha|esocial|e-social|s-2\d{3}/i, "crm-folha-esocial"],
-  [/budget|custo|headcount|planning|baia/i, "crm-budget-planning"],
-  [/indicador|turnover|relat[óo]rio|dashboard|quantos|n[úu]meros/i, "crm-indicadores"],
-  [/tarefa|agenda|solicita|central/i, "crm-central-rh"],
-  [/documento|arquivo|biblioteca/i, "crm-documentos"],
-  [/drive|computador|pasta/i, "documentos-drive"],
-  [/permiss|login|acesso|tabela|banco de dados|rls/i, "crm-banco-dados"],
-  [/tela|p[áa]gina|gerador|template|html/i, "desenvolvedor"],
-  [/aviso|comunicad|e-?mail|texto|post|canal|mensagem/i, "comunicacao"],
-];
-function roteiroLivre(texto) {
-  let equipe = [...new Set(ROTAS.filter(([re]) => re.test(texto)).map(([, id]) => id))].slice(0, 4);
-  if (!equipe.length) equipe = ["comunicacao"];
-  const temCrm = equipe.some(id => id.startsWith("crm-") || id === "documentos-drive");
-  const temCom = equipe.some(id => porId[id].sala === "com");
-  const auditor = temCrm ? "crm-auditor" : "auditor";
-  const arquivista = temCrm ? "crm-arquivista" : "arquivista";
-  const nomes = equipe.map(id => porId[id].nome).join(", ");
-  const passos = [[C, C, `Equipe para este pedido: ${nomes} → ${porId[auditor].nome} → ${porId[arquivista].nome}.`, "trabalhando"]];
-  passos.push(equipe.map(id => [C, id, `Sua parte em: “${texto}”.`, "trabalhando"]));
-  for (const id of equipe) passos.push([id, C, porId[id].fase2 ? "Fase 2: quando eu estiver no seu computador, faço esta busca." : "Minha parte está pronta.", "feito"]);
-  passos.push([C, auditor, "Revise o que a equipe entregou.", "trabalhando"]);
-  passos.push([auditor, C, "<span class='tag ok'>APROVADO</span>", "aprovado"]);
-  if (temCom && temCrm) passos.push([C, "arquivista", "Guarde a parte de Comunicados.", "trabalhando"], ["arquivista", C, "Salvo.", "feito"]);
-  passos.push([C, arquivista, "Registra e envia.", "trabalhando"]);
-  passos.push([arquivista, C, "Ata e commit feitos.", "feito"]);
-  return { rotulo: texto, passos };
+function desenhaEtiqueta(ctx, a, t) {
+  const e = ESTADOS[a.estado] || ESTADOS.livre;
+  ctx.font = "600 12px Inter, sans-serif";
+  const nome = a.nome + (a.obra ? " · em obra" : "") + (a.fase2 ? " · fase 2" : "");
+  const w = ctx.measureText(nome).width + 30, y = 0;
+  ctx.globalAlpha = a.fase2 ? 0.75 : 1;
+  ctx.fillStyle = "rgba(20,17,24,0.88)"; rr(ctx, -w / 2, y - 11, w, 22, 11); ctx.fill();
+  ctx.strokeStyle = a.estado === "trabalhando" ? "rgba(95,209,155,0.55)" : "rgba(255,255,255,0.12)"; ctx.lineWidth = 1; ctx.stroke();
+  const pulso = a.estado === "trabalhando" ? 1 + 0.35 * Math.sin(t / 220) : 1;
+  ctx.fillStyle = e.ponto; ctx.beginPath(); ctx.arc(-w / 2 + 12, y, 3.8 * pulso, 0, 7); ctx.fill();
+  ctx.fillStyle = "#F1ECF3"; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(nome, -w / 2 + 21, y + 0.5);
+  if (e.txt) {
+    ctx.font = "700 11.5px Inter, sans-serif";
+    const w2 = ctx.measureText(e.txt).width + 18;
+    ctx.fillStyle = e.cor; rr(ctx, -w2 / 2, y - 35, w2, 21, 7); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.fillText(e.txt, 0, y - 24);
+  }
+  ctx.globalAlpha = 1; ctx.textBaseline = "alphabetic";
+}
+function quebra(ctx, txt, max) {
+  const linhas = []; let l = "";
+  for (const p of txt.split(/\s+/)) { const tt = l ? l + " " + p : p; if (ctx.measureText(tt).width > max && l) { linhas.push(l); l = p; } else l = tt; }
+  if (l) linhas.push(l);
+  if (linhas.length > 4) { linhas.length = 4; linhas[3] = linhas[3].replace(/\s*\S*$/, "") + "…"; }
+  return linhas;
+}
+function desenhaBalao(ctx, a, t) {
+  if (!a.fala || t > a.fala.ate) return;
+  ctx.font = "500 13px Inter, sans-serif";
+  const linhas = quebra(ctx, a.fala.txt, 220);
+  const w = Math.max(...linhas.map(l => ctx.measureText(l).width)) + 22, h = linhas.length * 18 + 14, base = -16;
+  ctx.globalAlpha = Math.max(0, Math.min(1, (t - a.fala.de) / 160, (a.fala.ate - t) / 250));
+  ctx.fillStyle = { bad: "#FFE3E1", ok: "#DDF6E8", voce: "#FFE0EE" }[a.fala.tipo] || "#FFFFFF";
+  rr(ctx, -w / 2, base - h, w, h, 10); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-7, base - 1); ctx.lineTo(0, base + 8); ctx.lineTo(7, base - 1); ctx.fill();
+  ctx.fillStyle = "#1B1620"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+  linhas.forEach((l, i) => ctx.fillText(l, -w / 2 + 11, base - h + 8 + i * 18));
+  ctx.textBaseline = "alphabetic"; ctx.globalAlpha = 1;
 }
 
-// Motor da simulação
+// ───────────── Movimento ─────────────
+let vel = 1, turbo = 1;
+const fator = () => vel * turbo;
+const dorme = ms => new Promise(r => setTimeout(r, ms / fator()));
+const lim = (v, a, b) => Math.min(b, Math.max(a, v));
+function rota(de, para) {
+  const r1 = lim(Math.floor(de.y / CEL), 0, 4), r2 = lim(Math.floor(para.y / CEL), 0, 4);
+  const k1 = lim(Math.floor(de.x / CEL), 0, 5), k2 = lim(Math.floor(para.x / CEL), 0, 5);
+  const pts = [{ x: de.x, y: laneY(r1) }, { x: aisleX(k1), y: laneY(r1) }, { x: aisleX(k1), y: laneY(r2) },
+    { x: aisleX(k2), y: laneY(r2) }, { x: para.x, y: laneY(r2) }, { x: para.x, y: para.y }];
+  const out = [];
+  for (const p of pts) { const u = out[out.length - 1] || de; if (Math.hypot(p.x - u.x, p.y - u.y) > 0.05) out.push(p); }
+  return out;
+}
+function anda(a, alvo) {
+  return new Promise(res => {
+    a.sentado = false;
+    a.rota = rota({ x: a.x, y: a.y }, alvo);
+    if (!a.rota.length) return res();
+    a.chegou = res;
+  });
+}
+async function vaiPraCasa(a) { await anda(a, a.casa); a.sentado = true; a.papel = false; }
+function fala(a, txt, ms = 3400, tipo) { const t = performance.now(); a.fala = { txt, de: t, ate: t + ms / fator(), tipo }; a.ultimaFala = txt; }
+function emFila(a, fn) { const p = a.fila.then(fn); a.fila = p.catch(() => {}); return p; }
+function atualiza(dt) {
+  const agora = performance.now();
+  for (const a of Object.values(agentes)) {
+    if (a.estadoAte && agora > a.estadoAte) { a.estado = "livre"; a.estadoAte = 0; }
+    if (!a.rota.length) continue;
+    const alvo = a.rota[0], dx = alvo.x - a.x, dy = alvo.y - a.y, dist = Math.hypot(dx, dy), passo = a.vel * fator() * dt;
+    a.passo += dt * fator();
+    if (dist <= passo) {
+      a.x = alvo.x; a.y = alvo.y; a.rota.shift();
+      if (!a.rota.length && a.chegou) { const c = a.chegou; a.chegou = null; c(); }
+    } else { a.x += dx / dist * passo; a.y += dy / dist * passo; a.dirX = dx / dist; a.dirY = dy / dist; }
+  }
+}
+
+// ───────────── Câmera e desenho ─────────────
+const canvas = document.getElementById("cena"), ctx = canvas.getContext("2d"), palco = document.getElementById("palco");
+const cam = { z: 1, x: 0, y: 0 };
+const limites = (() => {
+  const pts = [tela(0, 0, PAREDE + 0.3), tela(LARG, 0, PAREDE + 0.3), tela(0, PROF, PAREDE + 0.3), tela(LARG, PROF), tela(0, PROF), tela(LARG, 0)];
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  return { x0: Math.min(...xs) - 20, x1: Math.max(...xs) + 20, y0: Math.min(...ys) - 30, y1: Math.max(...ys) + 20 };
+})();
+function ajusta() {
+  const w = palco.clientWidth, h = palco.clientHeight, topoLivre = w < 700 ? 110 : 64;
+  const z = Math.min(w / (limites.x1 - limites.x0), (h - topoLivre - 50) / (limites.y1 - limites.y0));
+  cam.z = z; cam.x = w / 2 - z * (limites.x0 + limites.x1) / 2; cam.y = topoLivre + (h - topoLivre - 50) / 2 - z * (limites.y0 + limites.y1) / 2;
+}
+function redimensiona() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.max(1, Math.round(palco.clientWidth * dpr)); canvas.height = Math.max(1, Math.round(palco.clientHeight * dpr)); canvas._dpr = dpr;
+}
+new ResizeObserver(() => { redimensiona(); ajusta(); }).observe(palco);
+let ultimo = performance.now();
+function quadro(t) {
+  const dt = Math.min(0.05, (t - ultimo) / 1000); ultimo = t;
+  atualiza(dt);
+  const dpr = canvas._dpr || 1;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#141118"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * cam.x, dpr * cam.y);
+  desenhaChao(ctx);
+  const itens = objetos.map(o => ({ prof: o.prof, f: () => o.desenha(ctx, t) }));
+  for (const a of Object.values(agentes)) itens.push({ prof: a.x + a.y + (a.sentado ? 0.05 : 0.2), f: () => desenhaBoneco(ctx, a, t) });
+  itens.sort((p, q) => p.prof - q.prof).forEach(i => i.f());
+  // nomes e balões em tamanho de tela, legíveis em qualquer zoom
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const esc = lim(cam.z * 1.45, 0.62, 1.1);
+  const naTela = (a, extra) => { const [sx, sy] = tela(a.x, a.y); return [cam.x + sx * cam.z, cam.y + (sy + (a.sentado ? -12 : 0) - 58) * cam.z - extra]; };
+  const ags = Object.values(agentes).sort((p, q) => (p.x + p.y) - (q.x + q.y));
+  ags.forEach(a => { const [X, Y] = naTela(a, 0); ctx.save(); ctx.translate(X, Y); ctx.scale(esc, esc); desenhaEtiqueta(ctx, a, t); ctx.restore(); });
+  ags.forEach(a => { const temSelo = (ESTADOS[a.estado] || {}).txt; const [X, Y] = naTela(a, (temSelo ? 30 : 8) * esc); ctx.save(); ctx.translate(X, Y); desenhaBalao(ctx, a, t); ctx.restore(); });
+  requestAnimationFrame(quadro);
+}
+
+// arrastar, zoom (roda e pinça) e toque num agente
+const toques = new Map(); let arrasto = null, pinca = null;
+canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId); toques.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (toques.size === 2) { const [p, q] = [...toques.values()]; pinca = { d: Math.hypot(p.x - q.x, p.y - q.y), z: cam.z }; arrasto = null; }
+  else arrasto = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moveu: false };
+});
+canvas.addEventListener("pointermove", e => {
+  if (!toques.has(e.pointerId)) return;
+  toques.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinca && toques.size === 2) {
+    const [p, q] = [...toques.values()], r = canvas.getBoundingClientRect();
+    zoom((pinca.z * Math.hypot(p.x - q.x, p.y - q.y) / pinca.d) / cam.z, (p.x + q.x) / 2 - r.left, (p.y + q.y) / 2 - r.top);
+    return;
+  }
+  if (!arrasto) return;
+  const dx = e.clientX - arrasto.x, dy = e.clientY - arrasto.y;
+  if (Math.abs(dx) + Math.abs(dy) > 6) arrasto.moveu = true;
+  cam.x = arrasto.cx + dx; cam.y = arrasto.cy + dy;
+});
+const solta = e => { if (arrasto && !arrasto.moveu && toques.size === 1) toque(e); toques.delete(e.pointerId); if (toques.size < 2) pinca = null; arrasto = null; };
+canvas.addEventListener("pointerup", solta);
+canvas.addEventListener("pointercancel", e => { toques.delete(e.pointerId); pinca = null; arrasto = null; });
+canvas.addEventListener("wheel", e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.offsetX, e.offsetY); }, { passive: false });
+function zoom(f, px = palco.clientWidth / 2, py = palco.clientHeight / 2) {
+  const nz = lim(cam.z * f, 0.25, 3.5), r = nz / cam.z;
+  cam.x = px - (px - cam.x) * r; cam.y = py - (py - cam.y) * r; cam.z = nz;
+}
+document.getElementById("b-zoom-mais").onclick = () => zoom(1.25);
+document.getElementById("b-zoom-menos").onclick = () => zoom(1 / 1.25);
+document.getElementById("b-ajustar").onclick = ajusta;
+const cartao = document.getElementById("cartao");
+function toque(e) {
+  const r = canvas.getBoundingClientRect();
+  const wx = (e.clientX - r.left - cam.x) / cam.z, wy = (e.clientY - r.top - cam.y) / cam.z;
+  let melhor = null, dmin = 36;
+  for (const a of Object.values(agentes)) {
+    const [sx, sy] = tela(a.x, a.y); const d = Math.hypot(wx - sx, wy - (sy - 32));
+    if (d < dmin) { dmin = d; melhor = a; }
+  }
+  if (!melhor) { cartao.hidden = true; return; }
+  const e2 = ESTADOS[melhor.estado];
+  cartao.replaceChildren();
+  const h3 = document.createElement("h3"); h3.textContent = melhor.nome;
+  const code = document.createElement("code"); code.textContent = `${melhor.id} · ${SALAS[melhor.sala]} · ${(e2 && e2.txt) || melhor.estado}`;
+  const p = document.createElement("p"); p.textContent = melhor.desc;
+  cartao.append(h3, code, p);
+  if (melhor.ultimaFala) { const f = document.createElement("p"); f.className = "fala"; f.textContent = "“" + melhor.ultimaFala + "”"; cartao.append(f); }
+  cartao.style.left = Math.max(8, Math.min(e.clientX - r.left + 12, palco.clientWidth - 266)) + "px";
+  cartao.style.top = Math.max(70, Math.min(e.clientY - r.top + 12, palco.clientHeight - 190)) + "px";
+  cartao.hidden = false;
+}
+
+// ───────────── Mural ─────────────
 const log = document.getElementById("log");
-const statusEl = document.getElementById("status");
-const andar = document.getElementById("andar");
-const btn = document.getElementById("enviar");
-const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
-let vel = 1, rodada = 0;
-const espera = ms => new Promise(r => setTimeout(r, ms / vel));
-
-function setEstado(id, est) {
-  const el = document.getElementById("mesa-" + id);
-  el.dataset.estado = est;
-  el.querySelector(".estado").textContent = ESTADO_TXT[est] || est;
-}
-function balao(id, html, ms) {
-  const mesa = document.getElementById("mesa-" + id);
-  mesa.querySelector(".balao")?.remove();
-  const b = document.createElement("div");
-  b.className = "balao";
-  b.innerHTML = html.replace(/<span class='tag[^>]*>|<\/span>/g, "");
-  mesa.appendChild(b);
-  setTimeout(() => b.remove(), ms / vel);
-}
-function escreve(id, html) {
+const nTrab = document.getElementById("n-trab"), nEnt = document.getElementById("n-entregues"), nPed = document.getElementById("n-pedidos");
+const pedidosHoje = new Set(); let entregasHoje = 0;
+function escreve(ev, tag) {
   log.querySelector(".vazio")?.remove();
-  const a = porId[id];
+  const a = ev.de === "voce" ? VOCE : (agentes[ev.de] || agentes.coordenadora);
   const li = document.createElement("li");
-  li.innerHTML = `<div class="mini" style="--cor:${COR[a.sala]}">${a.sigla}</div>
-    <div><div class="quem">${a.nome}<small>${a.id}</small></div><div class="txt">${html}</div></div>`;
-  log.appendChild(li);
+  const mini = document.createElement("div"); mini.className = "mini";
+  mini.style.background = a === VOCE ? "#F1ECF3" : COR_SALA[a.sala]; mini.style.color = a === VOCE ? "#141118" : "#fff"; mini.textContent = a.iniciais;
+  const corpo = document.createElement("div");
+  const quem = document.createElement("div"); quem.className = "quem"; quem.append(a.nome);
+  const para = ev.para === "voce" ? VOCE : agentes[ev.para];
+  if (para && para !== a) { const s = document.createElement("small"); s.textContent = "→ " + para.nome; quem.append(s); }
+  if (ev.hora) { const s = document.createElement("small"); s.textContent = ev.hora; quem.append(s); }
+  const txt = document.createElement("div"); txt.className = "txt";
+  if (tag) { const tg = document.createElement("span"); tg.className = "tag " + tag[0]; tg.textContent = tag[1]; txt.append(tg, " "); }
+  txt.append(ev.tipo === "pedido" ? (ev.titulo || ev.texto) : ev.texto);
+  corpo.append(quem, txt); li.append(mini, corpo); log.append(li);
+  while (log.children.length > 150) log.firstElementChild.remove();
   log.scrollTop = log.scrollHeight;
 }
-async function voa(de, para) {
-  if (de === para || reduz) return;
-  const r0 = andar.getBoundingClientRect();
-  const a = document.getElementById("mesa-" + de).querySelector(".av").getBoundingClientRect();
-  const b = document.getElementById("mesa-" + para).querySelector(".av").getBoundingClientRect();
-  const p = document.createElement("div");
-  p.className = "pacote";
-  andar.appendChild(p);
-  const x0 = a.left - r0.left + a.width / 2 - 13, y0 = a.top - r0.top + a.height / 2 - 10;
-  const x1 = b.left - r0.left + b.width / 2 - 13, y1 = b.top - r0.top + b.height / 2 - 10;
-  const anim = p.animate([{ transform: `translate(${x0}px,${y0}px)` }, { transform: `translate(${x1}px,${y1}px)` }],
-    { duration: 700 / vel, easing: "cubic-bezier(.45,.05,.35,1)", fill: "forwards" });
-  await anim.finished.catch(() => {});
-  p.remove();
+const TAGS = { aprovado: ["ok", "APROVADO"], reprovado: ["bad", "REPROVADO"], pergunta: ["voce", "PRECISA DE VOCÊ"], fim: ["ok", "CONCLUÍDO"] };
+setInterval(() => { nTrab.textContent = Object.values(agentes).filter(a => a.estado === "trabalhando").length; }, 500);
+
+// ───────────── Eventos (ao vivo e demonstração) ─────────────
+// Cada evento: { em, pedido, titulo?, de, para, tipo, texto }
+// tipo: pedido | plano | tarefa | entrega | conversa | aprovado | reprovado | pergunta | fim
+const fila = []; let processando = false, ocioso = performance.now();
+const faixa = document.getElementById("faixa"), faixaTxt = document.getElementById("faixa-txt");
+function enfileira(ev) { fila.push(ev); if (!processando) processa(); }
+async function processa() {
+  processando = true;
+  while (fila.length) { turbo = fila.length > 6 ? 3 : 1; const ev = fila.shift(); try { await executa(ev); } catch (e) { console.warn(e); } }
+  turbo = 1; processando = false; ocioso = performance.now();
 }
-async function passo([de, para, fala, est], minha) {
-  if (minha !== rodada) return;
-  balao(de, fala, 2600);
-  escreve(de, fala);
-  if (de !== C) setEstado(de, est);
-  else if (para === C) setEstado(C, est);
-  await voa(de, para);
-  if (minha !== rodada) return;
-  if (para !== C) setEstado(para, "trabalhando");
-  else if (de !== C) setEstado(C, "trabalhando");
-}
-function zera() {
-  for (const a of AG) {
-    const el = document.getElementById("mesa-" + a.id);
-    el.dataset.estado = "livre";
-    el.querySelector(".estado").textContent = a.fase2 ? "fase 2" : "livre";
-    el.querySelector(".balao")?.remove();
+const ponto = id => id === "voce" ? visita(ENTREGAS.k, ENTREGAS.r) : agentes[id] ? visita(agentes[id].k, agentes[id].r) : visita(0, 0);
+function marca(a, estado, ms) { a.estado = estado; a.estadoAte = ms ? performance.now() + ms / fator() : 0; }
+async function executa(ev) {
+  const co = agentes.coordenadora, de = agentes[ev.de] || co, para = ev.para === "voce" ? null : agentes[ev.para];
+  const texto = ev.texto;
+  if (ev.tipo === "pedido") {
+    if (!ev.demo) { pedidosHoje.add(ev.pedido); nPed.textContent = pedidosHoje.size; }
+    faixa.hidden = false; faixaTxt.textContent = ev.titulo || texto;
+    escreve({ ...ev, de: "voce", para: "coordenadora" });
+    await co.fila; fala(co, "Pedido recebido: " + (ev.titulo || texto), 3200); marca(co, "trabalhando"); await dorme(1900); return;
   }
-  andar.querySelectorAll(".pacote").forEach(p => p.remove());
-}
-async function roda(roteiro) {
-  const minha = ++rodada;
-  zera();
-  log.innerHTML = "";
-  const li = document.createElement("li");
-  li.className = "voce";
-  li.innerHTML = `<div class="mini">VC</div><div><div class="quem">Você</div><div class="txt">${roteiro.rotulo.replace(/</g, "&lt;")}</div></div>`;
-  log.appendChild(li);
-  statusEl.textContent = "em andamento";
-  btn.disabled = true;
-  await espera(500);
-  for (const p of roteiro.passos) {
-    if (minha !== rodada) return;
-    if (Array.isArray(p[0])) await Promise.all(p.map(q => passo(q, minha)));
-    else await passo(p, minha);
-    await espera(1300);
+  escreve(ev, TAGS[ev.tipo]);
+  if (ev.tipo === "plano") { await co.fila; fala(co, texto, 3800); marca(co, "trabalhando"); await dorme(2300); return; }
+  if (ev.tipo === "pergunta") { await co.fila; fala(co, texto, 7000, "voce"); marca(co, "voce"); await dorme(2800); return; }
+  if (ev.tipo === "fim") {
+    await emFila(co, async () => {
+      co.papel = true; await anda(co, ponto("voce")); co.papel = false;
+      entregas++; if (!ev.demo) { entregasHoje++; nEnt.textContent = entregasHoje; }
+      fala(co, texto || "Pedido entregue!", 3800, "ok"); marca(co, "entregue", 6000); await dorme(2200);
+    });
+    emFila(co, () => vaiPraCasa(co));
+    faixaTxt.textContent = "Concluído: " + faixaTxt.textContent.replace(/^Concluído: /, "");
+    setTimeout(() => { if (!fila.length) { for (const a of Object.values(agentes)) if (a.estado !== "voce") marca(a, "livre"); faixa.hidden = true; } }, 7000 / fator());
+    return;
   }
-  if (minha !== rodada) return;
-  setEstado(C, "feito");
-  escreve(C, "Pedido concluído. Resultado, participantes e pendências entregues.");
-  statusEl.textContent = "concluído";
-  btn.disabled = false;
+  if (!para || para === de) { await de.fila; fala(de, texto, 3600); await dorme(1900); return; }
+  await emFila(de, async () => {
+    de.papel = ev.tipo !== "conversa";
+    if (/arquivista/.test(de.id) && ev.tipo === "entrega") { await anda(de, visita(ARQUIVO.k, ARQUIVO.r)); fala(de, "Guardando no arquivo…", 1500); await dorme(1300); }
+    await anda(de, ponto(para.id));
+    de.papel = false;
+    fala(de, texto, 4300, ev.tipo === "aprovado" ? "ok" : ev.tipo === "reprovado" ? "bad" : undefined);
+    if (ev.tipo === "tarefa") marca(para, "trabalhando");
+    if (ev.tipo === "entrega") marca(de, "entregue", 9000);
+    if (ev.tipo === "aprovado") marca(de, "aprovado", 9000);
+    if (ev.tipo === "reprovado") marca(de, "reprovado", 9000);
+    if (ev.tipo === "conversa") marca(de, "esperando");
+    if (ev.tipo !== "tarefa" && para.estado !== "voce") marca(para, "trabalhando");
+    await dorme(2400);
+  });
+  emFila(de, () => vaiPraCasa(de));
 }
 
-// Controles
-const ex = document.getElementById("exemplos");
-for (const [k, r] of Object.entries(ROTEIROS)) {
-  const b = document.createElement("button");
-  b.type = "button"; b.className = "chip"; b.textContent = r.rotulo;
-  b.addEventListener("click", () => roda(r));
-  ex.appendChild(b);
+// ───────────── Vida de escritório (sem pedido em andamento) ─────────────
+const PAPOS = [
+  ["Viu a planilha nova do budget?", "Vi! Já conferi os parâmetros de 2027."],
+  ["Bom dia! Café?", "Só depois de fechar essa revisão."],
+  ["Lembrou do prazo do S-2200 de segunda?", "Está na agenda da Central RH."],
+  ["O Cami ficou lindo no último e-mail.", "O pessoal do canal adorou."],
+  ["Alguma pendência na minha mesa?", "Nada por enquanto, tudo em dia."],
+  ["Rodou os testes?", "Rodei, tudo verde."],
+  ["Chegou candidato novo pra vaga de professor?", "Dois, já mandei o convite da prova."],
+];
+function vidaDeEscritorio() {
+  if (processando || fila.length || performance.now() - ocioso < 4000) return;
+  const livres = Object.values(agentes).filter(a => a.estado === "livre" && a.sentado && !a.rota.length && !a.fase2 && a.id !== "coordenadora");
+  if (!livres.length) return;
+  const a = livres[Math.floor(Math.random() * livres.length)];
+  if (Math.random() < 0.4) {
+    emFila(a, async () => { await anda(a, { x: COPA.x + Math.random() * 1.8, y: COPA.y + Math.random() * 0.6 }); fala(a, Math.random() < 0.5 ? "Hora do café." : "Um copo d’água e já volto.", 2200); await dorme(2800); });
+    emFila(a, () => vaiPraCasa(a));
+  } else {
+    const viz = livres.filter(b => b !== a && b.sala === a.sala);
+    if (!viz.length) return;
+    const b = viz[Math.floor(Math.random() * viz.length)], [p, r] = PAPOS[Math.floor(Math.random() * PAPOS.length)];
+    emFila(a, async () => { await anda(a, visita(b.k, b.r)); fala(a, p, 2600); await dorme(2100); fala(b, r, 2600); await dorme(2300); });
+    emFila(a, () => vaiPraCasa(a));
+  }
 }
-document.getElementById("form").addEventListener("submit", e => {
-  e.preventDefault();
-  const t = document.getElementById("campo").value.trim();
-  if (t) roda(roteiroLivre(t));
-});
-document.querySelectorAll("[data-vel]").forEach(b => b.addEventListener("click", () => {
-  vel = +b.dataset.vel;
-  document.querySelectorAll("[data-vel]").forEach(o => o.setAttribute("aria-pressed", o === b));
-}));
-document.getElementById("limpar").addEventListener("click", () => {
-  rodada++; zera(); btn.disabled = false; statusEl.textContent = "aguardando pedido";
-  log.innerHTML = '<li class="vazio" style="display:block">Nenhum pedido ainda. Escolha um exemplo acima.</li>';
-});
+setInterval(vidaDeEscritorio, 3800);
 
-// Abre já mostrando a sala trabalhando
-roda(ROTEIROS.provas);
+// ───────────── Demonstração ─────────────
+const C = "coordenadora";
+const DEMOS = [
+  { titulo: "Prova escrita e aula-teste para professor", passos: [
+    [C, C, "plano", "Toca Processo Seletivo e Recrutamento. O Banco cuida das tabelas."],
+    [C, "crm-processo-seletivo", "tarefa", "Monte as etapas da vaga de professor: prova escrita e aula-teste com banca."],
+    [C, "crm-recrutamento", "tarefa", "Prepare o funil da vaga para receber as notas."],
+    ["crm-processo-seletivo", C, "conversa", "Prova peso 40, aula-teste peso 60, corte 7. Preciso das tabelas de tentativas e notas."],
+    [C, "crm-banco-dados", "tarefa", "O Processo Seletivo pede tabelas com o gabarito protegido."],
+    ["crm-banco-dados", C, "entrega", "Migração pronta com RLS. O gabarito fica só no servidor."],
+    ["crm-recrutamento", C, "entrega", "O funil mostra a nota por etapa e o ranking da vaga."],
+    [C, "crm-processo-seletivo", "tarefa", "Tabelas prontas, pode montar as telas."],
+    ["crm-processo-seletivo", C, "entrega", "Telas e correção prontas, testes passando."],
+    [C, "crm-auditor", "tarefa", "Revise a mudança inteira."],
+    ["crm-auditor", C, "aprovado", "Tipos ok, RLS ok, o candidato nunca vê o gabarito."],
+    [C, "crm-arquivista", "tarefa", "Registre e envie."],
+    ["crm-arquivista", C, "entrega", "Ata salva e commit enviado. Falta aplicar o SQL."],
+    [C, "voce", "fim", "Pronto! Etapas da vaga de professor no ar."],
+  ] },
+  { titulo: "Aviso de recesso de fim de ano", passos: [
+    [C, C, "plano", "Texto para colaboradores: Comunicação, Auditor e Arquivista."],
+    [C, "comunicacao", "tarefa", "Escreva o aviso de recesso para todos."],
+    ["comunicacao", C, "entrega", "Rascunho pronto. A data de retorno ficou A CONFIRMAR."],
+    [C, "voce", "pergunta", "Qual é a data de retorno do recesso?"],
+    [C, "comunicacao", "tarefa", "Retorno confirmado: 5 de janeiro."],
+    ["comunicacao", C, "entrega", "Corrigido, com o plantão do RH em destaque."],
+    [C, "auditor", "tarefa", "Revise o aviso."],
+    ["auditor", C, "reprovado", "Falta o contato do plantão no fim do e-mail."],
+    [C, "comunicacao", "tarefa", "Inclua o contato do plantão."],
+    ["comunicacao", C, "entrega", "Incluído."],
+    [C, "auditor", "tarefa", "Segunda revisão."],
+    ["auditor", C, "aprovado", "Sem dados pessoais, tom e marca ok."],
+    [C, "arquivista", "tarefa", "Guarde e registre."],
+    ["arquivista", C, "entrega", "Salvo em comunicados e ata registrada."],
+    [C, "voce", "fim", "Aviso de recesso pronto para enviar."],
+  ] },
+  { titulo: "Fechamento da folha do mês", passos: [
+    [C, C, "plano", "Folha e eSocial lidera. Férias e Jurídico mandam as movimentações."],
+    [C, "crm-ferias-beneficios", "tarefa", "Quais férias caem neste mês?"],
+    [C, "crm-juridico", "tarefa", "Algum desligamento no mês?"],
+    ["crm-ferias-beneficios", "crm-folha-esocial", "entrega", "Férias do mês lançadas nos apontamentos."],
+    ["crm-juridico", "crm-folha-esocial", "entrega", "Um desligamento: rescisão simulada e TRCT gerado."],
+    [C, "crm-folha-esocial", "tarefa", "Rode a prévia e confira com o extrato da BHUB."],
+    ["crm-folha-esocial", C, "entrega", "Prévia fechada. As divergências estão explicadas no relatório."],
+    [C, "crm-auditor", "tarefa", "Revise a conferência."],
+    ["crm-auditor", C, "aprovado", "Cálculo bate com as tabelas legais vigentes."],
+    [C, "crm-arquivista", "tarefa", "Registre a ata do fechamento."],
+    ["crm-arquivista", C, "entrega", "Ata do fechamento registrada."],
+    [C, "voce", "fim", "Folha do mês conferida."],
+  ] },
+  { titulo: "Documentos do colaborador X no Drive", passos: [
+    [C, C, "plano", "Envolve a ficha no CRM e o Drive (fase 2)."],
+    [C, "crm-colaboradores", "tarefa", "Quais documentos a ficha do colaborador X exige?"],
+    [C, "documentos-drive", "tarefa", "Procure os documentos do colaborador X."],
+    ["crm-colaboradores", C, "entrega", "RG, CPF, ASO admissional e contrato assinado."],
+    ["documentos-drive", C, "entrega", "Achei RG, CPF e contrato. O ASO não está lá."],
+    [C, "crm-documentos", "tarefa", "Vincule os achados e marque o ASO como pendente."],
+    ["crm-documentos", C, "entrega", "Vinculados com acesso restrito. ASO pendente."],
+    [C, "comunicacao", "tarefa", "Escreva um e-mail pedindo o ASO."],
+    ["comunicacao", C, "entrega", "E-mail pronto como rascunho."],
+    [C, "voce", "fim", "Falta só o ASO. O e-mail está pronto para você enviar."],
+  ] },
+];
+const menu = document.getElementById("menu"), bDemo = document.getElementById("b-demo");
+DEMOS.forEach(d => {
+  const b = document.createElement("button"); b.type = "button"; b.textContent = d.titulo;
+  b.onclick = () => { menu.hidden = true; bDemo.setAttribute("aria-expanded", "false"); rodaDemo(d); };
+  menu.append(b);
+});
+bDemo.onclick = () => { menu.hidden = !menu.hidden; bDemo.setAttribute("aria-expanded", String(!menu.hidden)); };
+function rodaDemo(d) {
+  for (let i = fila.length - 1; i >= 0; i--) if (fila[i].demo) fila.splice(i, 1);
+  const id = "demo-" + Date.now();
+  if (estadoVivo !== "on") setVivo("demo");
+  enfileira({ demo: true, pedido: id, tipo: "pedido", de: "voce", para: C, titulo: d.titulo, texto: d.titulo });
+  d.passos.forEach(([de, para, tipo, texto]) => enfileira({ demo: true, pedido: id, de, para, tipo, texto }));
+}
+document.querySelectorAll("[data-vel]").forEach(b => b.onclick = () => {
+  vel = +b.dataset.vel; document.querySelectorAll("[data-vel]").forEach(o => o.setAttribute("aria-pressed", String(o === b)));
+});
+const mural = document.getElementById("mural");
+document.getElementById("b-mural").onclick = () => mural.classList.add("aberto");
+document.getElementById("b-fechar-mural").onclick = () => mural.classList.remove("aberto");
+document.addEventListener("keydown", e => { if (e.key === "Escape") { menu.hidden = true; cartao.hidden = true; mural.classList.remove("aberto"); } });
+
+// ───────────── Ao vivo ─────────────
+const vivo = document.getElementById("vivo"), vivoTxt = document.getElementById("vivo-txt");
+let estadoVivo = "espera";
+function setVivo(s) {
+  estadoVivo = s; vivo.dataset.s = s;
+  vivoTxt.textContent = { on: "ao vivo", off: "sem conexão ao vivo", demo: "demonstração", espera: "conectando…" }[s];
+}
+const vistos = new Set();
+const TIPOS = new Set(["pedido", "plano", "tarefa", "entrega", "conversa", "aprovado", "reprovado", "pergunta", "fim"]);
+function limpa(id, d) {
+  if (!d || !TIPOS.has(d.tipo)) return null;
+  const s = v => (typeof v === "string" ? v : "").slice(0, 400);
+  const em = s(d.em), dt = em ? new Date(em) : null;
+  const hora = dt && !isNaN(dt) ? dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
+  return { id, em, dt, hora, pedido: s(d.pedido), titulo: s(d.titulo), de: s(d.de), para: s(d.para), tipo: d.tipo, texto: s(d.texto) };
+}
+function aplicaEstadoInicial(evs) {
+  if (!evs.length) return;
+  const hoje = new Date().toDateString();
+  evs.forEach(e => { if (e.dt && e.dt.toDateString() === hoje) { if (e.tipo === "pedido") pedidosHoje.add(e.pedido); if (e.tipo === "fim") entregasHoje++; } });
+  nPed.textContent = pedidosHoje.size; nEnt.textContent = entregasHoje; entregas = entregasHoje;
+  const ultimo = evs[evs.length - 1], doPedido = evs.filter(e => e.pedido === ultimo.pedido);
+  doPedido.forEach(e => e.tipo === "pedido" ? escreve({ ...e, de: "voce", para: "coordenadora" }) : escreve(e, TAGS[e.tipo]));
+  const recente = ultimo.dt && Date.now() - ultimo.dt.getTime() < 3 * 3600e3;
+  if (!recente || ultimo.tipo === "fim") return;
+  const ini = doPedido.find(e => e.tipo === "pedido");
+  faixa.hidden = false; faixaTxt.textContent = (ini && (ini.titulo || ini.texto)) || "Pedido em andamento";
+  for (const e of doPedido) {
+    const de = agentes[e.de], para = agentes[e.para];
+    if (e.tipo === "tarefa" && para) para.estado = "trabalhando";
+    if (e.tipo === "entrega" && de) de.estado = "entregue";
+    if (e.tipo === "aprovado" && de) de.estado = "aprovado";
+    if (e.tipo === "reprovado" && de) de.estado = "reprovado";
+    if (e.tipo === "conversa" && de) de.estado = "esperando";
+  }
+  agentes.coordenadora.estado = ultimo.tipo === "pergunta" ? "voce" : "trabalhando";
+}
+(async () => {
+  let db = null;
+  try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch { db = null; }
+  if (!db) { setVivo("off"); return; }
+  let primeira = true;
+  const timer = setTimeout(() => { if (primeira) setVivo("off"); }, 10000);
+  db.collection("eventos").orderBy("em", "desc").limit(80).onSnapshot(snap => {
+    clearTimeout(timer);
+    const evs = snap.docs.map(d => limpa(d.id, d.data())).filter(Boolean).sort((a, b) => a.em < b.em ? -1 : a.em > b.em ? 1 : a.id < b.id ? -1 : 1);
+    if (primeira) { primeira = false; evs.forEach(e => vistos.add(e.id)); setVivo("on"); aplicaEstadoInicial(evs); return; }
+    const novos = evs.filter(e => !vistos.has(e.id));
+    if (!novos.length) return;
+    for (let i = fila.length - 1; i >= 0; i--) if (fila[i].demo) fila.splice(i, 1);
+    setVivo("on");
+    novos.forEach(e => { vistos.add(e.id); enfileira(e); });
+  }, () => setVivo("off"));
+})();
+
+redimensiona(); ajusta();
+requestAnimationFrame(quadro);
+setTimeout(() => { ocioso = 0; }, 1200);
 </script>

@@ -27,6 +27,34 @@ da equipe entra, passa o trabalho e junta o resultado. Ela não faz o trabalho p
 5. **Fechar**: o `arquivista` salva e registra a ata em `sala/atas/`. Responda com o resultado,
    quem participou e o que ficou pendente.
 
+## Escritório ao vivo
+
+A pessoa acompanha a sala pelo **Escritório de Pessoas** (https://claude.ai/artifact/LEG4KnsPHBABz74EmURUAU),
+onde cada agente é um bonequinho que anda, conversa e entrega. Ele só se mexe com o que a coordenadora registrar.
+
+Se a ferramenta `ArtifactData` estiver disponível na sessão (carregue com ToolSearch), registre cada passo do pedido
+na coleção `eventos` desse link. Junte os passos do mesmo momento num único `batch`.
+Se a ferramenta não existir, siga o trabalho normalmente, sem registrar.
+
+Cada evento é um documento novo (sem `if_version`):
+- `doc_id`: `AAAAMMDD-HHMMSS-NN`, com a hora UTC e um sequencial
+- `em`: data e hora em ISO UTC (ex.: `2026-11-22T21:43:40Z`)
+- `pedido`: um id para o pedido inteiro (ex.: `20261122-recesso`)
+- `tipo`: `pedido` | `plano` | `tarefa` | `entrega` | `conversa` | `aprovado` | `reprovado` | `pergunta` | `fim`
+- `de` e `para`: o nome do agente (ex.: `crm-ninebox`), `coordenadora` ou `voce`
+- `texto`: uma frase curta em português; no `pedido`, também `titulo`
+
+Quando registrar:
+1. Ao receber o pedido: `pedido` (de `voce` para `coordenadora`) e `plano` (a equipe escolhida).
+2. Ao chamar um agente: `tarefa` (de `coordenadora` para o agente).
+3. Quando o agente devolve: `entrega`. Se ele precisar de outro colega antes, `conversa`.
+4. Na revisão: `aprovado` ou `reprovado` (de `auditor`/`crm-auditor` para `coordenadora`).
+5. Se precisar perguntar algo à pessoa: `pergunta` (de `coordenadora` para `voce`).
+6. No fim: `fim` (de `coordenadora` para `voce`).
+
+O mural pode ser visto por quem tiver o link: **nunca** coloque no texto nomes reais de colaboradores,
+CPF, salário, saúde ou qualquer dado pessoal. Escreva "colaborador X", "a vaga de professor" etc.
+
 ## Regras da casa
 
 - Português do Brasil.

@@ -13,7 +13,9 @@ e uma equipe de agentes em `.claude/agents/`. A sessão principal do Claude é s
 
 ## Ver o escritório
 
-`predio/escritorio.html` mostra a planta do prédio com uma mesa por agente e simula pedidos passando de mesa em mesa.
+`predio/escritorio.html` é o escritório animado: cada agente é um bonequinho que anda, conversa e entrega.
+Ele se mexe ao vivo com os eventos que a coordenadora registra (veja "Escritório ao vivo" no `CLAUDE.md` de cada sala)
+e tem pedidos de demonstração. Deixe aberto no tablet.
 Versão publicada: https://claude.ai/artifact/LEG4KnsPHBABz74EmURUAU
 
 ## Como os agentes "conversam"
