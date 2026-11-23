@@ -8,7 +8,7 @@ e uma equipe de agentes em `.claude/agents/`. A sessão principal do Claude é s
 🏢 Prédio de Pessoas
 ├── 🚪 Sala Comunicados   pedrocavali/projectsclaude   comunicacao · desenvolvedor · auditor · arquivista
 ├── 🚪 Sala CRM           pedrocavali/crm-rh-camino    14 especialistas (um por seção) + auditor + arquivista
-└── 🚪 (próximas)         Drive, pastas do C:          ex.: agente "documentos-drive"
+└── 🚪 Sala Drive         Google Drive (conector)      documentos-drive, mora no repositório do CRM
 ```
 
 ## Ver o escritório
@@ -51,3 +51,11 @@ Funciona em qualquer sessão aberta dentro de um dos repositórios.
 ## Regra de nomes
 Agentes de uma sala específica levam o prefixo da sala (`crm-ninebox`, `crm-colaboradores`…), para que
 nunca colidam quando todos estiverem juntos no prédio.
+
+## Fase 2 (decidida): tudo num lugar só, pela nuvem
+
+- A conversa principal roda na nuvem, com os dois repositórios e o Google Drive conectados.
+- O agente `documentos-drive` usa o conector do Google Drive e lê os drives compartilhados do RH. Não precisa de computador ligado.
+- Computadores de **casa** e da **empresa**: as pastas de trabalho do C: são sincronizadas pelo Google Drive para computador,
+  então tudo aparece no Drive e a conversa na nuvem enxerga.
+- Só para programas que existem num computador específico: abrir uma conversa ligada àquele computador (Claude Desktop, Remote Control).
