@@ -27,7 +27,7 @@
 [hidden] { display: none !important }
 html, body { height: 100% }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; overflow: hidden }
-.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 340px }
+.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: minmax(0, 1fr); overflow: hidden }
 @media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr) } }
 
 .palco { position: relative; min-width: 0; overflow: hidden; touch-action: none }
@@ -70,7 +70,7 @@ button[aria-pressed="true"] { border-color: var(--rosa); color: #fff }
 .cartao .fala { color: var(--ink); background: var(--panel-2); border-radius: 8px; padding: 6px 8px }
 
 /* Mural */
-.mural { background: var(--panel); border-left: 1px solid var(--line); display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; height: 100% }
+.mural { background: var(--panel); border-left: 1px solid var(--line); display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; min-height: 0; height: 100%; overflow: hidden }
 @media (max-width: 900px) {
   .mural { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; height: min(62%, 520px); border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; transform: translateY(105%); transition: transform .25s ease; padding-bottom: env(safe-area-inset-bottom, 0px) }
   .mural.aberto { transform: none }
@@ -145,7 +145,7 @@ button[aria-pressed="true"] { border-color: var(--rosa); color: #fff }
 // ───────────── Equipe e planta ─────────────
 // Grade: colunas k a cada 4 lajotas (eixo x), fileiras r a cada 4 (eixo y). A mesa ocupa o começo da célula;
 // os corredores x = 4k+3.55 e y = 4r+2.75 ficam livres, e é por eles que todo mundo anda.
-const SALAS = { hall: "Recepção", com: "Comunicados", crm: "CRM", drv: "Drive (fase 2)" };
+const SALAS = { hall: "Recepção", com: "Comunicados", crm: "CRM", drv: "Google Drive" };
 const EQUIPE = [
   ["coordenadora", "Coordenadora", "hall", 0, 0, "Recebe o pedido, monta a equipe e faz a ponte entre os agentes."],
   ["comunicacao", "Comunicação", "com", 0, 1, "Escreve comunicados, e-mails e avisos na voz do time Pessoas e do Cami."],
@@ -169,7 +169,7 @@ const EQUIPE = [
   ["crm-banco-dados", "Banco e Acesso", "crm", 4, 3, "Supabase, migrações SQL, RLS e permissões."],
   ["crm-auditor", "Auditor CRM", "crm", 5, 3, "Revisão obrigatória: build, segurança, LGPD e impacto entre seções."],
   ["crm-arquivista", "Arquivista CRM", "crm", 2, 4, "Ata, commit e push do CRM."],
-  ["documentos-drive", "Drive e Pastas", "drv", 0, 4, "Fase 2: vai procurar documentos no Drive e nas pastas do seu computador."],
+  ["documentos-drive", "Drive RH", "drv", 0, 4, "Procura e confere documentos nos drives compartilhados do RH pelo Google Drive. Também enxerga as pastas sincronizadas dos computadores de casa e da empresa."],
 ];
 const CEL = 3.5;
 const ARQUIVO = { k: 3, r: 4 }, ENTREGAS = { k: 1, r: 0 }, COPA = { x: 2.3, y: 12.6 };
@@ -177,7 +177,7 @@ const ZONAS = [
   { x: 0, y: 0, w: 7, d: 3.5, cor: "#3A1A33", rotulo: "RECEPÇÃO", tam: 0.62 },
   { x: 0, y: 3.5, w: 7, d: 7, cor: "#3A2C16", rotulo: "COMUNICADOS", tam: 0.62 },
   { x: 0, y: 10.5, w: 7, d: 3.5, cor: "#1F2E28", rotulo: "COPA", tam: 0.62 },
-  { x: 0, y: 14, w: 7, d: 3.5, cor: "#331527", rotulo: "DRIVE", tam: 0.62, tracejado: true },
+  { x: 0, y: 14, w: 7, d: 3.5, cor: "#331527", rotulo: "DRIVE", tam: 0.62 },
   { x: 7, y: 0, w: 14, d: 17.5, cor: "#2C1F3D", rotulo: "SALA CRM", tam: 1.1 },
 ];
 const CAMISAS = ["#E8623A", "#F2B632", "#3FA58E", "#4D8FD6", "#8E5BD6", "#D6559A", "#5C7A8A", "#2F9E5B", "#C9483B", "#E0A458", "#6A7BD9", "#C77DD1"];
@@ -195,7 +195,7 @@ const agentes = {};
 EQUIPE.forEach(([id, nome, sala, k, r, desc, obra], i) => {
   const c = cadeira(k, r);
   agentes[id] = {
-    id, nome, sala, k, r, desc, obra: !!obra, fase2: sala === "drv",
+    id, nome, sala, k, r, desc, obra: !!obra, fase2: false,
     casa: c, x: c.x, y: c.y, sentado: true, rota: [], vel: 4.2, fila: Promise.resolve(), dirX: 0, dirY: 1,
     camisa: id === "coordenadora" ? "#E6007E" : CAMISAS[(i * 5) % CAMISAS.length],
     pele: PELES[(i * 3) % PELES.length], cabelo: CABELOS[(i * 7) % CABELOS.length], estilo: i % 3,
@@ -335,7 +335,7 @@ function desenhaChao(ctx) {
   for (let x = 0; x <= LARG; x += 1.75) { const [a, b] = tela(x, 0), [c, d] = tela(x, PROF); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); }
   for (let y = 0; y <= PROF; y += 1.75) { const [a, b] = tela(0, y), [c, d] = tela(LARG, y); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); }
   for (const z of ZONAS) if (z.rotulo) textoChao(ctx, z.rotulo, z.x + 0.5, z.y + z.d - 0.45, z.tam, "rgba(255,255,255,0.12)");
-  textoChao(ctx, "FASE 2", 2.6, 17.05, 0.45, "rgba(255,79,154,0.6)");
+  textoChao(ctx, "CASA + EMPRESA", 2.3, 17.05, 0.4, "rgba(255,79,154,0.6)");
 }
 function textoChao(ctx, txt, x, y, tam, cor) {
   const [sx, sy] = tela(x, y);
@@ -448,6 +448,47 @@ function desenhaBalao(ctx, a, t) {
   ctx.textBaseline = "alphabetic"; ctx.globalAlpha = 1;
 }
 
+// ───────────── Setas entre agentes ─────────────
+const setas = [];
+const COR_SETA = { tarefa: "#FF4F9A", entrega: "#5FD19B", conversa: "#F5B94A", aprovado: "#5FD19B", reprovado: "#FF6B6B", pedido: "#F1ECF3", fim: "#F7A600" };
+function seta(de, para, tipo, ms = 6500) {
+  const t = performance.now();
+  setas.push({ de, para, cor: COR_SETA[tipo] || "#F1ECF3", t0: t, ate: t + ms / fator() });
+}
+function pontoSeta(alvo) {
+  if (alvo === "voce") { const v = visita(ENTREGAS.k, ENTREGAS.r); const [x, y] = tela(v.x, v.y, 1.1); return [x, y]; }
+  const a = agentes[alvo]; if (!a) return null;
+  const [x, y] = tela(a.x, a.y); return [x, y - (a.sentado ? 54 : 44)];
+}
+function desenhaSetas(ctx, t) {
+  for (let i = setas.length - 1; i >= 0; i--) if (t > setas[i].ate) setas.splice(i, 1);
+  for (const s of setas) {
+    const p = pontoSeta(s.de), q = pontoSeta(s.para);
+    if (!p || !q) continue;
+    const dist = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (dist < 20) continue;
+    const cx = (p[0] + q[0]) / 2, cy = Math.min(p[1], q[1]) - 40 - dist * 0.22;
+    const alfa = Math.min(1, (t - s.t0) / 250, (s.ate - t) / 700);
+    ctx.save(); ctx.globalAlpha = Math.max(0, alfa);
+    ctx.strokeStyle = s.cor; ctx.lineWidth = 3; ctx.lineCap = "round";
+    ctx.shadowColor = s.cor; ctx.shadowBlur = 10;
+    ctx.setLineDash([10, 8]); ctx.lineDashOffset = -t / 25;
+    ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.quadraticCurveTo(cx, cy, q[0], q[1]); ctx.stroke();
+    ctx.setLineDash([]); ctx.shadowBlur = 0;
+    // ponta da seta
+    const ang = Math.atan2(q[1] - cy, q[0] - cx);
+    ctx.fillStyle = s.cor; ctx.beginPath();
+    ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] - 14 * Math.cos(ang - 0.45), q[1] - 14 * Math.sin(ang - 0.45));
+    ctx.lineTo(q[0] - 14 * Math.cos(ang + 0.45), q[1] - 14 * Math.sin(ang + 0.45)); ctx.closePath(); ctx.fill();
+    // envelope correndo pela seta
+    const u = ((t - s.t0) / 1100) % 1;
+    const bx = (1 - u) * (1 - u) * p[0] + 2 * (1 - u) * u * cx + u * u * q[0], by = (1 - u) * (1 - u) * p[1] + 2 * (1 - u) * u * cy + u * u * q[1];
+    ctx.fillStyle = "#FFFFFF"; rr(ctx, bx - 7, by - 5, 14, 10, 2); ctx.fill();
+    ctx.strokeStyle = s.cor; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(bx - 7, by - 5); ctx.lineTo(bx, by + 1); ctx.lineTo(bx + 7, by - 5); ctx.stroke();
+    ctx.restore();
+  }
+}
+
 // ───────────── Movimento ─────────────
 let vel = 1, turbo = 1;
 const fator = () => vel * turbo;
@@ -516,6 +557,7 @@ function quadro(t) {
   const itens = objetos.map(o => ({ prof: o.prof, f: () => o.desenha(ctx, t) }));
   for (const a of Object.values(agentes)) itens.push({ prof: a.x + a.y + (a.sentado ? 0.05 : 0.2), f: () => desenhaBoneco(ctx, a, t) });
   itens.sort((p, q) => p.prof - q.prof).forEach(i => i.f());
+  desenhaSetas(ctx, t);
   // nomes e balões em tamanho de tela, legíveis em qualquer zoom
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const esc = lim(cam.z * 1.45, 0.62, 1.1);
@@ -610,10 +652,21 @@ setInterval(() => { nTrab.textContent = Object.values(agentes).filter(a => a.est
 const fila = []; let processando = false, ocioso = performance.now();
 const faixa = document.getElementById("faixa"), faixaTxt = document.getElementById("faixa-txt");
 function enfileira(ev) { fila.push(ev); if (!processando) processa(); }
+const emAndamento = new Set();
 async function processa() {
   processando = true;
-  while (fila.length) { turbo = fila.length > 6 ? 3 : 1; const ev = fila.shift(); try { await executa(ev); } catch (e) { console.warn(e); } }
+  while (fila.length) {
+    turbo = fila.length > 12 ? 2.5 : 1;
+    const ev = fila.shift();
+    if (ev.tipo === "fim" || ev.tipo === "pedido") await Promise.all([...emAndamento]);
+    const p = executa(ev).catch(e => console.warn(e));
+    emAndamento.add(p); p.finally(() => emAndamento.delete(p));
+    if (["pedido", "plano", "pergunta", "fim"].includes(ev.tipo)) await p;
+    else await dorme(ev.tipo === "tarefa" ? 700 : 1300);
+  }
+  await Promise.all([...emAndamento]);
   turbo = 1; processando = false; ocioso = performance.now();
+  if (apresentacao) setTimeout(proximaApresentacao, 3500);
 }
 const ponto = id => id === "voce" ? visita(ENTREGAS.k, ENTREGAS.r) : agentes[id] ? visita(agentes[id].k, agentes[id].r) : visita(0, 0);
 function marca(a, estado, ms) { a.estado = estado; a.estadoAte = ms ? performance.now() + ms / fator() : 0; }
@@ -630,6 +683,7 @@ async function executa(ev) {
   if (ev.tipo === "plano") { await co.fila; fala(co, texto, 3800); marca(co, "trabalhando"); await dorme(2300); return; }
   if (ev.tipo === "pergunta") { await co.fila; fala(co, texto, 7000, "voce"); marca(co, "voce"); await dorme(2800); return; }
   if (ev.tipo === "fim") {
+    seta(co.id, "voce", "fim", 5000);
     await emFila(co, async () => {
       co.papel = true; await anda(co, ponto("voce")); co.papel = false;
       entregas++; if (!ev.demo) { entregasHoje++; nEnt.textContent = entregasHoje; }
@@ -641,6 +695,16 @@ async function executa(ev) {
     return;
   }
   if (!para || para === de) { await de.fila; fala(de, texto, 3600); await dorme(1900); return; }
+  if (ev.tipo === "tarefa" && de === co) {
+    seta(co.id, para.id, "tarefa", 4500);
+    marca(co, "trabalhando");
+    await dorme(900);
+    await para.fila;
+    fala(para, texto, 4200); marca(para, "trabalhando");
+    await dorme(1500);
+    return;
+  }
+  seta(de.id, para.id, ev.tipo, 7000);
   await emFila(de, async () => {
     de.papel = ev.tipo !== "conversa";
     if (/arquivista/.test(de.id) && ev.tipo === "entrega") { await anda(de, visita(ARQUIVO.k, ARQUIVO.r)); fala(de, "Guardando no arquivo…", 1500); await dorme(1300); }
@@ -689,6 +753,39 @@ setInterval(vidaDeEscritorio, 3800);
 // ───────────── Demonstração ─────────────
 const C = "coordenadora";
 const DEMOS = [
+  { titulo: "Admissão de professor, do começo ao fim", passos: [
+    [C, C, "plano", "Seis especialistas em paralelo, depois auditoria e arquivo."],
+    [C, "crm-recrutamento", "tarefa", "Feche a vaga e mova a candidata aprovada para admissão."],
+    [C, "crm-processo-seletivo", "tarefa", "Junte as notas da prova e da aula-teste."],
+    [C, "crm-admissao-onboarding", "tarefa", "Prepare o contrato CLT e a trilha de onboarding."],
+    [C, "crm-folha-esocial", "tarefa", "Prepare o S-2200 antes do primeiro dia."],
+    [C, "documentos-drive", "tarefa", "Confira os documentos dela no Drive do RH."],
+    [C, "comunicacao", "tarefa", "Escreva o e-mail de boas-vindas."],
+    ["crm-processo-seletivo", "crm-recrutamento", "entrega", "Prova e aula-teste acima do corte. Aprovada."],
+    ["documentos-drive", "crm-documentos", "entrega", "RG, CPF e comprovante achados. O ASO não está no Drive."],
+    ["crm-admissao-onboarding", "crm-juridico", "conversa", "Pode revisar a cláusula de experiência?"],
+    ["crm-folha-esocial", "crm-colaboradores", "conversa", "Faltam escolaridade e raça/cor na ficha para o S-2200."],
+    ["crm-juridico", "crm-admissao-onboarding", "entrega", "Cláusula ok: 45 + 45 dias."],
+    ["crm-colaboradores", "crm-folha-esocial", "entrega", "Campos preenchidos na ficha."],
+    ["crm-recrutamento", C, "entrega", "Vaga fechada, candidata em admissão."],
+    ["crm-documentos", C, "entrega", "Documentos vinculados. ASO pendente."],
+    ["crm-admissao-onboarding", C, "entrega", "Contrato pronto para assinatura no Lexio."],
+    ["crm-folha-esocial", C, "entrega", "S-2200 gerado e conferido contra o leiaute."],
+    ["comunicacao", C, "entrega", "E-mail de boas-vindas pronto, com o Cami."],
+    [C, "crm-auditor", "tarefa", "Revise a admissão inteira."],
+    [C, "auditor", "tarefa", "Revise o e-mail de boas-vindas."],
+    ["auditor", C, "aprovado", "Tom e marca ok, sem dados pessoais."],
+    ["crm-auditor", C, "reprovado", "O S-2200 está sem a data do exame admissional."],
+    [C, "crm-folha-esocial", "tarefa", "Deixe o S-2200 aguardando o ASO."],
+    ["crm-folha-esocial", C, "entrega", "Ajustado: só falta a data do ASO."],
+    [C, "crm-auditor", "tarefa", "Segunda revisão."],
+    ["crm-auditor", C, "aprovado", "Agora sim. Nada sensível exposto."],
+    [C, "crm-arquivista", "tarefa", "Registre a ata da admissão."],
+    [C, "arquivista", "tarefa", "Guarde o e-mail de boas-vindas."],
+    ["crm-arquivista", C, "entrega", "Ata registrada e commit enviado."],
+    ["arquivista", C, "entrega", "E-mail guardado em comunicados."],
+    [C, "voce", "fim", "Admissão encaminhada. Falta só o ASO."],
+  ] },
   { titulo: "Prova escrita e aula-teste para professor", passos: [
     [C, C, "plano", "Toca Processo Seletivo e Recrutamento. O Banco cuida das tabelas."],
     [C, "crm-processo-seletivo", "tarefa", "Monte as etapas da vaga de professor: prova escrita e aula-teste com banca."],
@@ -755,6 +852,22 @@ DEMOS.forEach(d => {
   b.onclick = () => { menu.hidden = true; bDemo.setAttribute("aria-expanded", "false"); rodaDemo(d); };
   menu.append(b);
 });
+let apresentacao = false, idxApresentacao = 0;
+const bApres = document.createElement("button"); bApres.type = "button";
+bApres.textContent = "▶ Modo apresentação: repete os exemplos sozinho";
+bApres.style.color = "#FF4F9A"; bApres.style.fontWeight = "600";
+bApres.onclick = () => {
+  menu.hidden = true; bDemo.setAttribute("aria-expanded", "false");
+  apresentacao = !apresentacao;
+  bApres.textContent = apresentacao ? "■ Parar o modo apresentação" : "▶ Modo apresentação: repete os exemplos sozinho";
+  bDemo.textContent = apresentacao ? "Apresentação ligada" : "Ver demonstração";
+  if (apresentacao && !processando && !fila.length) proximaApresentacao();
+};
+menu.insertBefore(bApres, menu.children[1]);
+function proximaApresentacao() {
+  if (!apresentacao || processando || fila.length) return;
+  rodaDemo(DEMOS[idxApresentacao++ % DEMOS.length]);
+}
 bDemo.onclick = () => { menu.hidden = !menu.hidden; bDemo.setAttribute("aria-expanded", String(!menu.hidden)); };
 function rodaDemo(d) {
   for (let i = fila.length - 1; i >= 0; i--) if (fila[i].demo) fila.splice(i, 1);
@@ -821,6 +934,7 @@ function aplicaEstadoInicial(evs) {
     const novos = evs.filter(e => !vistos.has(e.id));
     if (!novos.length) return;
     for (let i = fila.length - 1; i >= 0; i--) if (fila[i].demo) fila.splice(i, 1);
+    if (apresentacao) { apresentacao = false; bApres.textContent = "▶ Modo apresentação: repete os exemplos sozinho"; bDemo.textContent = "Ver demonstração"; }
     setVivo("on");
     novos.forEach(e => { vistos.add(e.id); enfileira(e); });
   }, () => setVivo("off"));
