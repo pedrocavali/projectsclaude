@@ -180,7 +180,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
           <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
         </div>
         <label>Fechamento <span style="font-weight:400">— vem depois do quadro de destaques</span><textarea id="f-fecho" rows="3"></textarea></label>
-        <p class="dica">Use <code>{remetente}</code>, <code>{mes}</code> e <code>{prazo}</code> no texto: viram o e-mail do canal, o mês atual e o dia 15 do mês.</p>
+        <p class="dica">Use <code>{remetente}</code>, <code>{mes}</code> e <code>{prazo}</code> e <code>{hoje}</code> no texto: viram o e-mail do canal, o mês atual, o dia 15 do mês e a data de hoje.</p>
         <div class="linha">
           <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
           <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
@@ -303,6 +303,17 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
       destaques: [['Último dia de aula', 'dd/mm'], ['Início do recesso (pedagógico)', 'dd/mm'], ['Retorno (pedagógico)', 'dd/mm']],
       fecho: 'Obrigado por mais um ano de dedicação aos nossos alunos e às famílias. Bom descanso e até a volta!',
       cta: '', link: '', regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': true }
+    },
+    decimo1: {
+      nome: '13º: 1ª parcela paga hoje', etiqueta: 'Fique por dentro · 13º salário',
+      assunto: '1ª parcela do 13º: o pagamento cai hoje na sua conta',
+      titulo: 'A 1ª parcela do seu 13º já está a caminho',
+      corpo: 'Olá, time!\n\nBoa notícia: a **1ª parcela do 13º salário** está sendo paga **hoje, {hoje}**, na mesma conta em que você recebe o salário.\n\nEssa parcela corresponde a **metade do seu 13º**, sem desconto de INSS e de Imposto de Renda. Quem entrou na Camino ao longo do ano recebe o valor proporcional aos meses trabalhados.\n\nSe você já recebeu a 1ª parcela junto com as férias, ela não será paga de novo agora.\n\nDependendo do banco, o valor pode aparecer na conta ao longo do dia.',
+      destaques: [['Pagamento', 'Hoje, {hoje}'], ['Valor', 'Metade do seu 13º, sem INSS e sem Imposto de Renda'], ['2ª parcela', 'Até 20/12, com o desconto do INSS e, quando houver, do Imposto de Renda']],
+      fecho: 'O valor não apareceu até o fim do dia? Responda este e-mail que a gente confere com a folha.',
+      cta: '', link: '',
+      regimes: { 'CLT': true, 'Jovem Aprendiz': true, 'Estagiário': false },
+      aviso: 'Estagiários não têm direito a 13º (Lei do Estágio), por isso ficam fora deste comunicado. Marque se quiser incluir.'
     },
     ponto: {
       nome: 'Acesso ao ponto (RHiD)', etiqueta: 'Fique por dentro · Ponto',
@@ -593,6 +604,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     const mm = new Intl.DateTimeFormat('pt-BR', { month: '2-digit', timeZone: 'America/Sao_Paulo' }).format(hoje)
     return String(t ?? '').replace(/\{remetente\}/g, $('f-remetente').value.trim() || 'o e-mail do RH')
       .replace(/\{mes\}/g, mes).replace(/\{prazo\}/g, `15/${mm}`)
+      .replace(/\{hoje\}/g, new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'America/Sao_Paulo' }).format(hoje))
   }
   const ehPJ = () => MODELOS[estado.modelo] && MODELOS[estado.modelo].grupo === 'pj'
 
