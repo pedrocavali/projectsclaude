@@ -109,6 +109,15 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
 .pt { font-weight: 600 }
 .pd { color: var(--ink-soft); font-size: 12.5px }
 @media (max-width: 520px) { .pauta { grid-template-columns: minmax(0, 1fr) } .pf { grid-row: auto } }
+.campos-grade { display: grid; gap: 14px; margin-top: 14px }
+details > summary { list-style-position: outside }
+.sum-grande { font-family: var(--f-display); font-weight: 800; font-size: 16px; color: var(--ink) }
+.barra-edicao { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 13px }
+#email [contenteditable="true"], #p-assunto { outline: none; cursor: text; border-radius: 4px }
+#email [contenteditable="true"]:hover { box-shadow: 0 0 0 2px #E6007E33 }
+#email [contenteditable="true"]:focus { box-shadow: 0 0 0 2px #E6007E88 }
+#p-assunto:hover, #p-assunto:focus { box-shadow: 0 0 0 2px #E6007E55 }
+.dica-previa { margin-top: 8px }
 .previa-box { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
 .assunto { background: var(--panel); border: 1px solid var(--line); border-bottom: 0; border-radius: 12px 12px 0 0; padding: 12px 16px; font-size: 13px; color: var(--ink-soft); overflow-wrap: anywhere }
 .assunto b { color: var(--ink) }
@@ -129,9 +138,51 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
 
   <div class="grid">
     <div class="col">
-      <!-- PASSO 1 -->
+      <!-- PASSO 2 -->
+      <section class="passo" aria-labelledby="t2">
+        <h2 id="t2"><span class="num">1</span>Escolha o comunicado</h2>
+        <div class="modelos" id="modelos" role="group" aria-label="Modelos"></div>
+      </section>
+
+      <section class="passo" aria-labelledby="t2b">
+        <h2 id="t2b"><span class="num">2</span>Ajuste o texto</h2>
+        <p class="dica"><b>Edição rápida:</b> clique em qualquer texto do e-mail, na prévia, e escreva por cima. Para mudar assunto, quadro de destaques ou botão, abra os campos abaixo.</p>
+        <details id="det-campos">
+          <summary>Editar pelos campos</summary>
+          <div class="campos-grade">
+        <div class="linha">
+          <label>Assunto do e-mail<input type="text" id="f-assunto"></label>
+          <label>Etiqueta<input type="text" id="f-etiqueta"></label>
+        </div>
+        <label>Título<input type="text" id="f-titulo"></label>
+        <label>Texto <span style="font-weight:400">— linha em branco separa parágrafos; **negrito** funciona</span><textarea id="f-corpo" rows="8"></textarea></label>
+        <div>
+          <div class="dica" style="margin-bottom:6px">Destaques (aparecem num quadro no e-mail)</div>
+          <div class="destaques" id="destaques"></div>
+          <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
+        </div>
+        <label>Fechamento <span style="font-weight:400">— vem depois do quadro de destaques</span><textarea id="f-fecho" rows="3"></textarea></label>
+        <p class="dica">Use <code>{remetente}</code>, <code>{mes}</code> e <code>{prazo}</code> e <code>{hoje}</code> no texto: viram o e-mail do canal, o mês atual, o dia 15 do mês e a data de hoje.</p>
+        <div class="linha">
+          <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
+          <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
+        </div>
+        <label>Assinatura<input type="text" id="f-assinatura"></label>
+        <details>
+          <summary>Ajustes da marca</summary>
+          <div style="display:grid;gap:10px;margin-top:10px">
+            <label>E-mail remetente<input type="text" id="f-remetente"></label>
+            <label>Endereço da imagem do logo (C) — precisa ser pública<input type="url" id="f-camiurl"></label>
+            <input type="hidden" id="f-logo">
+          </div>
+        </details>
+          </div>
+        </details>
+      </section>
+
+      <!-- PASSO 3 -->
       <section class="passo" aria-labelledby="t1">
-        <h2 id="t1"><span class="num">1</span>Lista de destinatários</h2>
+        <h2 id="t1"><span class="num">3</span>Quem recebe</h2>
         <p class="dica">No CRM, abra <code>Colaboradores</code>, clique em <code>Exportar</code> e solte aqui o <code>colaboradores.csv</code>. Também funciona com .xlsx.</p>
         <label class="drop" id="drop" for="arquivo">
           <strong id="drop-titulo">Soltar o arquivo exportado do CRM</strong>
@@ -164,49 +215,25 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
         </div>
       </section>
 
-      <!-- PASSO 2 -->
-      <section class="passo" aria-labelledby="t2">
-        <h2 id="t2"><span class="num">2</span>Comunicado</h2>
-        <div class="modelos" id="modelos" role="group" aria-label="Modelos"></div>
-        <div class="linha">
-          <label>Assunto do e-mail<input type="text" id="f-assunto"></label>
-          <label>Etiqueta<input type="text" id="f-etiqueta"></label>
-        </div>
-        <label>Título<input type="text" id="f-titulo"></label>
-        <label>Texto <span style="font-weight:400">— linha em branco separa parágrafos; **negrito** funciona</span><textarea id="f-corpo" rows="8"></textarea></label>
-        <div>
-          <div class="dica" style="margin-bottom:6px">Destaques (aparecem num quadro no e-mail)</div>
-          <div class="destaques" id="destaques"></div>
-          <button class="mais" type="button" id="add-dest">+ adicionar destaque</button>
-        </div>
-        <label>Fechamento <span style="font-weight:400">— vem depois do quadro de destaques</span><textarea id="f-fecho" rows="3"></textarea></label>
-        <p class="dica">Use <code>{remetente}</code>, <code>{mes}</code> e <code>{prazo}</code> e <code>{hoje}</code> no texto: viram o e-mail do canal, o mês atual, o dia 15 do mês e a data de hoje.</p>
-        <div class="linha">
-          <label>Botão (opcional)<input type="text" id="f-cta" placeholder="Ex.: Ver meu holerite"></label>
-          <label>Link do botão<input type="url" id="f-link" placeholder="https://"></label>
-        </div>
-        <label>Assinatura<input type="text" id="f-assinatura"></label>
-        <details>
-          <summary>Ajustes da marca</summary>
-          <div style="display:grid;gap:10px;margin-top:10px">
-            <label>E-mail remetente<input type="text" id="f-remetente"></label>
-            <label>Endereço da imagem do logo (C) — precisa ser pública<input type="url" id="f-camiurl"></label>
-            <input type="hidden" id="f-logo">
-          </div>
-        </details>
-      </section>
+
 
       <section class="passo" aria-labelledby="t3">
-        <h2 id="t3">Banco de pautas</h2>
-        <p class="dica">Ideias para manter o ritmo de 2 a 3 e-mails por semana. Clique em uma para começar o rascunho.</p>
-        <div id="pautas" class="pautas"></div>
+        <details>
+          <summary id="t3" class="sum-grande">Banco de pautas · ideias para os próximos e-mails</summary>
+          <div id="pautas" class="pautas" style="margin-top:12px"></div>
+        </details>
       </section>
     </div>
 
     <!-- PRÉVIA -->
     <div class="previa-box">
-      <div class="assunto">Assunto: <b id="p-assunto"></b></div>
-      <div class="previa"><div id="email"></div></div>
+      <div class="barra-edicao" id="barra-edicao" hidden>
+        <span>Você editou direto no e-mail. Os campos ficam pausados até você descartar essas edições.</span>
+        <button class="btn sec" type="button" id="descartar">Descartar edições</button>
+      </div>
+      <div class="assunto">Assunto: <b id="p-assunto" contenteditable="true" spellcheck="true"></b></div>
+      <div class="previa"><div id="email" spellcheck="true"></div></div>
+      <p class="dica dica-previa">Clique no texto para editar. O que você mudar aqui é o que vai ser copiado.</p>
       <div class="acoes previa-acoes">
         <button class="btn" type="button" id="copiar-email">Copiar e-mail</button>
         <button class="btn sec" type="button" id="copiar-assunto">Copiar assunto</button>
@@ -580,7 +607,7 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     $('f-corpo').value = m.corpo; $('f-fecho').value = m.fecho || ''; $('f-cta').value = m.cta; $('f-link').value = m.link
     destaques = m.destaques.map((d) => [...d])
     estado.regimes = { ...m.regimes }
-    renderModelos(); renderDestaques(); renderLista(); renderEmail()
+    renderModelos(); renderDestaques(); renderLista(); renderEmail(true)
   }
 
   function renderDestaques() {
@@ -644,12 +671,12 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden">
     <tr><td style="height:6px;line-height:6px;font-size:0;background:#E6007E;background-image:linear-gradient(90deg,#F7A600,#E6007E,#8E1F8F)">&nbsp;</td></tr>
     <tr><td style="padding:24px 24px 4px">${logo}</td></tr>
-    <tr><td style="padding:16px 24px 0">
+    <tr><td style="padding:16px 24px 0"${previa ? ' contenteditable="true"' : ''}>
       ${v('etiqueta') ? `<div style="${F};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#E6007E;margin:0 0 8px">${esc(v('etiqueta'))}</div>` : ''}
       ${v('titulo') ? `<h1 style="margin:0 0 18px;${F};font-size:26px;line-height:1.25;font-weight:800;color:#26202B">${esc(v('titulo'))}</h1>` : ''}
       ${paragrafos}${quadro}${fecho}${cta}
     </td></tr>
-    <tr><td style="padding:6px 24px 26px">
+    <tr><td style="padding:6px 24px 26px"${previa ? ' contenteditable="true"' : ''}>
       <p style="margin:0;${F};font-size:15px;line-height:1.5;color:#26202B">Um abraço,<br><strong>${esc(v('assinatura'))}</strong></p>
     </td></tr>
     <tr><td style="padding:16px 24px;background:#FAF7FA;border-top:1px solid #EFE8F0">
@@ -659,12 +686,33 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
 </td></tr></table>`
   }
 
-  function renderEmail() {
+  let editadoNaPrevia = false
+  function marcarEdicao(sim) {
+    editadoNaPrevia = sim
+    $('barra-edicao').hidden = !sim
+  }
+  function renderEmail(forcar) {
+    if (editadoNaPrevia && forcar !== true) return
+    if (forcar === true) marcarEdicao(false)
     $('email').innerHTML = htmlEmail(true)
     $('p-assunto').textContent = subst($('f-assunto').value) || '(sem assunto)'
     $('remetente-txt').textContent = $('f-remetente').value || '—'
   }
-  campos.forEach((k) => $('f-' + k).addEventListener('input', renderEmail))
+  campos.forEach((k) => $('f-' + k).addEventListener('input', () => renderEmail()))
+  $('email').addEventListener('input', () => marcarEdicao(true))
+  $('p-assunto').addEventListener('input', () => marcarEdicao(true))
+  $('descartar').addEventListener('click', () => renderEmail(true))
+
+  // HTML final a copiar: o que está na prévia (com as edições rápidas), sem os controles de edição
+  // e com o endereço público da imagem no lugar da imagem embutida.
+  function htmlParaCopiar() {
+    if (!editadoNaPrevia) return htmlEmail()
+    const c = $('email').cloneNode(true)
+    c.querySelectorAll('[contenteditable]').forEach((el) => el.removeAttribute('contenteditable'))
+    c.querySelectorAll('img').forEach((img) => { if (img.src.startsWith('data:')) img.setAttribute('src', $('f-camiurl').value.trim()) })
+    return c.innerHTML
+  }
+  const assuntoAtual = () => $('p-assunto').textContent.trim()
 
   // ───────── Copiar ─────────
   let timer
@@ -681,10 +729,10 @@ details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var
     else avisar('Copiado')
   }
 
-  $('copiar-assunto').addEventListener('click', () => copiarTexto(subst($('f-assunto').value), $('copiar-assunto')))
+  $('copiar-assunto').addEventListener('click', () => copiarTexto(assuntoAtual(), $('copiar-assunto')))
 
   $('copiar-email').addEventListener('click', async () => {
-    const html = htmlEmail()
+    const html = htmlParaCopiar()
     const texto = $('email').innerText
     try {
       await navigator.clipboard.write([new ClipboardItem({
