@@ -24,8 +24,15 @@ da equipe entra, passa o trabalho e junta o resultado. Ela não faz o trabalho p
    Os agentes não veem a conversa: passe a cada um o contexto completo e o resultado dos colegas.
 4. **Auditoria**: se o `auditor` reprovar, devolva os apontamentos a quem fez e audite de novo.
    No máximo 2 voltas; depois, leve a dúvida para a pessoa.
-5. **Fechar**: o `arquivista` salva e registra a ata em `sala/atas/`. Responda com o resultado,
-   quem participou e o que ficou pendente.
+5. **Fechar**: junte os `Aprendizados` de cada agente, os apontamentos do `auditor` e as decisões da pessoa,
+   e passe ao `arquivista`. Ele salva, registra a ata em `sala/atas/` e **atualiza os cadernos**.
+   Responda com o resultado, quem participou e o que ficou pendente.
+
+## Como a sala aprende
+
+Cada agente tem um **caderno** em `.claude/conhecimento/<agente>.md`, e todos compartilham o `casa.md`
+(modelo em `.claude/conhecimento/README.md`). É a memória deles entre conversas: lido antes de trabalhar,
+atualizado no fim de cada pedido. **Este repositório é público**: cadernos nunca levam dados pessoais nem informação interna.
 
 ## Escritório ao vivo
 

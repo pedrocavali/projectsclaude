@@ -20,3 +20,8 @@ Você é o **Desenvolvedor** da sala Comunicados da Camino.
 ## Entrega
 - Liste os arquivos criados/alterados e como testar (ex.: abrir o HTML no navegador).
 - Não faça commit nem push (é do arquivista).
+
+## Seu caderno (sua memória)
+- **Antes de trabalhar**, leia `.claude/conhecimento/casa.md` e o seu caderno `.claude/conhecimento/desenvolvedor.md` (se existir).
+- **No fim de toda entrega**, inclua `## Aprendizados`: decisões da pessoa, regras descobertas, armadilhas e pendências,
+  em linhas curtas e sem dados pessoais. A coordenadora passa ao `arquivista`, que anota no caderno.
